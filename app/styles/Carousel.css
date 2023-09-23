@@ -1,0 +1,13 @@
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: gray; /* Default dot color */
+  margin: 0 5px;
+  display: flex;
+  cursor: pointer;
+}
+
+.carousel-dot.active {
+  background-color: white; /* Active dot color */
+}
