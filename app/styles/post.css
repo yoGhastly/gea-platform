@@ -1,0 +1,28 @@
+:root {
+  --geist-space-gap: 24px;
+  --geist-page-margin: var(--geist-space-gap);
+  --geist-page-width: 1200px;
+  --geist-page-width-with-margin: calc(
+    var(--geist-page-width) + calc(2 * var(--geist-page-margin))
+  );
+}
+
+.article-hero-bg {
+  background: linear-gradient(
+    to bottom,
+    rgba(47, 234, 149, 0.1) 0%,
+    rgba(42, 206, 202, 0.1) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+}
+
+.article-hero-body {
+  max-width: var(--geist-page-width-with-margin);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  padding: 0 24px;
+  padding-top: 0px;
+  padding-right: 24px;
+  padding-bottom: 0px;
+  padding-left: 24px;
+}

@@ -1,4 +1,4 @@
 export { CustomLink as Link } from "./Link"
-export { Carousel } from "./Carousel"
-export { Navbar } from "./Navbar";
+export { Slideshow } from "./Slideshow"
 export { Footer } from "./Footer";
+export { PostCard } from "./PostCard"
