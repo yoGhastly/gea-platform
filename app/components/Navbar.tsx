@@ -1,21 +1,38 @@
 'use client';
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname } from 'next/navigation'
 
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Avatar } from "@nextui-org/react";
 import { Link } from ".";
 import Image from "next/image";
 import { poppins } from "../fonts";
+import { supabase } from "../lib/supabase";
 
 export const Navigation = () => {
   const pathname = usePathname()
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   const menuItems = [
     "Inicio",
     "Grupos Estudiantiles",
   ];
+
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((evt, session) => {
+      console.log(evt);
+      console.log(session);
+      switch (evt) {
+        case "SIGNED_IN":
+          setIsSignedIn(true);
+          break;
+        default:
+          setIsSignedIn(false);
+          break;
+      }
+    })
+  }, [])
 
 
   return (
@@ -43,7 +60,7 @@ export const Navigation = () => {
           </Link>
         </NavbarItem>
       </NavbarContent>
-      <NavbarContent as="div" justify="end" className="md:-mr-28">
+      <NavbarContent as="div" justify="end" className="md:-mr-28" hidden={isSignedIn}>
         <Avatar
           isBordered
           as="button"
