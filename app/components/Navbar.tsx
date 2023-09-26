@@ -21,8 +21,6 @@ export const Navigation = () => {
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((evt, session) => {
-      console.log(evt);
-      console.log(session);
       switch (evt) {
         case "SIGNED_IN":
           setIsSignedIn(true);
@@ -44,7 +42,6 @@ export const Navigation = () => {
         />
         <NavbarBrand className="self-start md:-mx-36">
           <Image src="/logo.svg" width={150} height={65} alt="GEA" className="hidden md:block self-start" />
-          <p className={`${poppins.className} font-bold text-inherit block md:hidden`}>GEA</p>
         </NavbarBrand>
       </NavbarContent>
 
