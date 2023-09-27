@@ -5,11 +5,12 @@ import { Avatar, Chip, Divider } from "@nextui-org/react";
 
 import "../../styles/post.css";
 import Image from "next/image";
+import { HeaderGradient } from "@/app/components";
 
 export default function Post({ params }: { params: { postId: string } }) {
   return (
     <main className="min-h-screen mb-32">
-      <div className="article_layour_header w-full pt-3 px-6 article-hero-bg">
+      <HeaderGradient>
         <div style={{ margin: "0 auto" }} className="max-w-5xl">
           <div className="ml-auto w-auto">
             <div className="pt-2 text-secondary">
@@ -42,7 +43,7 @@ export default function Post({ params }: { params: { postId: string } }) {
             </p>
           </div>
         </div>
-      </div>
+      </HeaderGradient>
 
       <div
         style={{ margin: "0 auto" }}
