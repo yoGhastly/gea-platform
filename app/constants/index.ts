@@ -1,0 +1,1 @@
+export { gruposEstudiantiles } from "./grupos"
