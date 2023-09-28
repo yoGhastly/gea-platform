@@ -1,10 +1,10 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import { HeaderGradient } from "../components";
 import Image from "next/image";
-import { Divider, Tab, Tabs } from "@nextui-org/react";
+import { Button, Divider, Tab, Tabs } from "@nextui-org/react";
 import Link from "next/link";
 
 export interface Profile {
@@ -119,8 +119,16 @@ export default function Profile() {
             style={{ margin: "40px 64px" }}
             className="flex flex-col gap-10"
           >
-            <h1 className="font-bold text-4xl">{profileDetails?.group}</h1>
-            <p className="text-secondary/80">{profileDetails?.bio}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="font-bold text-4xl">{profileDetails?.group}</h1>
+                <p className="text-secondary/80">{profileDetails?.bio}</p>
+              </div>
+              <div className="flex gap-5">
+                <Button variant="ghost" color="secondary">Editar Perfil</Button>
+                <Button variant="solid" color="secondary" as="a" href="/blog?add=true">Crear Post</Button>
+              </div>
+            </div>
             <Divider orientation="horizontal" className="bg-secondary/30" />
             <Tabs
               aria-label="Options"

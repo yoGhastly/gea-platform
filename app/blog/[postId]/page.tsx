@@ -1,13 +1,67 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Avatar, Chip, Divider } from "@nextui-org/react";
 
 import "../../styles/post.css";
 import Image from "next/image";
 import { HeaderGradient } from "@/app/components";
+import { supabase } from "@/app/lib/supabase";
+
+interface Post {
+  postId: string;
+  date: string;
+  title: string;
+  image: string;
+  created_at: string;
+  group: string;
+  description: string;
+}
 
 export default function Post({ params }: { params: { postId: string } }) {
+  const [postDetails, setPostDetails] = useState<Post | null>(null);
+  const [imageSrc, setImageSrc] = useState("");
+  const [presidentName, setPresidentName] = useState("");
+
+  useEffect(() => {
+    if (!params.postId) return;
+    const getPost = async () => {
+      const { data: postData, error } = await supabase
+        .from("posts")
+        .select("*")
+        .eq("postId", params.postId);
+
+      const { data: imageData } = supabase.storage
+        .from("postImages")
+        .getPublicUrl(
+          `images/${postData![0]?.group}_${postData![0]?.date}/${postData![0]?.image}`
+        );
+      console.log(imageData.publicUrl);
+
+      const { data: groupData, error: errorGroup } = await supabase
+        .from("groups")
+        .select("*")
+        .eq("group", postData![0]?.group);
+
+      if (error && errorGroup) {
+        console.error(
+          `Failed to retrieve post with ID ${params.postId}`,
+          error
+        );
+
+        console.error(`Failed to retrieve group`, errorGroup);
+        return;
+      }
+
+      if (postData && imageData && groupData) {
+        setPostDetails(postData[0]);
+        setImageSrc(imageData.publicUrl);
+        setPresidentName(groupData[0]?.presidentName);
+      }
+    };
+    getPost();
+  }, [params.postId]);
+
   return (
     <main className="min-h-screen mb-32">
       <HeaderGradient>
@@ -29,17 +83,15 @@ export default function Post({ params }: { params: { postId: string } }) {
                   content: "text-black",
                 }}
               >
-                Grupo Estudiantil
+                {postDetails?.group}
               </Chip>
               <Chip variant="light">
-                <p className="text-gray">Saturday, September 23th 2023</p>
+                <p className="text-gray">{postDetails?.date.match(/(\d{2}_\d{2}_\d{4})/)![0].replace(/_/g, " ")}</p>
               </Chip>
             </div>
-            <h1 className="text-5xl font-bold mt-6">Asesorias Medio Curso</h1>
+            <h1 className="text-5xl font-bold mt-6">{postDetails?.title}</h1>
             <p className="mt-6 text-lg max-w-md text-gray-300">
-              ¡Te compartimos las materias que impartiremos como apoyo para tus
-              exámenes! ¡Recuerda estar atento a las fechas que se darán
-              próximamente!
+              {postDetails?.description}
             </p>
           </div>
         </div>
@@ -49,12 +101,13 @@ export default function Post({ params }: { params: { postId: string } }) {
         style={{ margin: "0 auto" }}
         className="article-hero-body pt-3 px-6 max-w-4xl grid grid-cols-2"
       >
-        <div className="relative rounded w-auto h-[600px] max-w-xl px-6 mt-10 md:ml-20">
+        <div className="relative rounded w-auto h-[600px] max-w-xl px-6 mt-10 md:ml-20 overflow-hidden">
           <Image
-            src="/carousel-image.png"
+            src={imageSrc}
             alt="Post"
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-contain"
           />
         </div>
         <div className="flex gap-8">
@@ -65,11 +118,10 @@ export default function Post({ params }: { params: { postId: string } }) {
               as="button"
               className="transition-transform"
               color="secondary"
-              name="Jason Hughes"
+              name={presidentName}
               size="sm"
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
             />
-            <p className="font-semibold">Mariana</p>
+            <p className="font-semibold">{presidentName}</p>
           </div>
         </div>
       </div>

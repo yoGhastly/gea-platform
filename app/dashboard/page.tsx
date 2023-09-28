@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { Button, Code, Input } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
 import { v4 as uuidv4 } from "uuid";
-import Image from "next/image";
-import { EmailInput } from "../components";
+import { EmailInput, GroupSelector } from "../components";
+import { gruposEstudiantiles } from "../constants";
 
 function RenderSignIn({ errorMessage }: { errorMessage: string }) {
   const [isLoading, setLoading] = useState(false);
@@ -60,13 +61,13 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
 
 export default function Dashboard() {
   const [groupEmailToAdd, setGroupEmailToAdd] = useState("");
+  const [groupToAdd, setGroupToAdd] = useState("");
   const [isEmailLogged, setIsEmailLogged] = useState<boolean>(false);
   const [showInput, setShowInput] = useState<boolean>(false);
-  const [emailExists, setEmailExists] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [showInviteLink, setShowInviteLink] = useState<boolean>(false);
   const [disableButton, setDisableButton] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState(
+  const [errorMessage, _setErrorMessage] = useState(
     "Please enter a valid email"
   );
 
@@ -90,10 +91,10 @@ export default function Dashboard() {
     }
 
 
-    const { error } = await supabase.from("groups").insert([
+    const { error } = await supabase.from("emailGroups").insert([
       {
-        id: uuidv4(),
         email: groupEmail,
+        group: groupToAdd,
       },
     ]);
     alert("Grupo Registrado");
@@ -134,16 +135,21 @@ export default function Dashboard() {
                 : "Agregar Grupo Estudiantil"}
             </p>
           </button>
-          <div className="flex flex-col gap-5 max-w-xl">
-            <EmailInput
-              value={groupEmailToAdd}
-              setState={setGroupEmailToAdd}
-              isLoading={isLoading}
-              onClick={() => registerGroup({ email: groupEmailToAdd })}
-              buttonLabel="Generar invitación"
-              disableButton={disableButton}
-              errorMessage={errorMessage}
-            />
+          <div className={`${showInput ? "flex flex-col gap-5 max-w-xl" : "hidden"}`}>
+            <div className="flex gap-5 w-full">
+              <EmailInput
+                value={groupEmailToAdd}
+                setState={setGroupEmailToAdd}
+                isLoading={isLoading}
+                onClick={() => registerGroup({ email: groupEmailToAdd })}
+                buttonLabel="Generar invitación"
+                disableButton={disableButton}
+                errorMessage={errorMessage}
+              />
+              <div className={`${showInviteLink ? "hidden" : ""}`}>
+                <GroupSelector groups={gruposEstudiantiles} setSelectedGroup={setGroupToAdd} />
+              </div>
+            </div>
             <p className={`${showInviteLink ? "block" : "hidden"}`}>
               {" "}
               Tu link de invitación para crear un perfil de Grupo Estudiantil:
