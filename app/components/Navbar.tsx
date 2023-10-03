@@ -12,22 +12,49 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   Avatar,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
 import { Link } from ".";
 import Image from "next/image";
 import { supabase } from "../lib/supabase";
+import { Session, User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { classicNameResolver } from "typescript";
 
 export const Navigation = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userData, setUserData] = useState<Session>();
+  const { push } = useRouter();
 
   const menuItems = ["Inicio", "Grupos Estudiantiles"];
+
+  const signOut = () => {
+    return supabase.auth.signOut();
+  }
+
+  const goToProfile = async () => {
+    const { data: emailGroupsData, error } = await supabase.from("emailGroups").select("*").single();
+
+    if (error) {
+      console.error(`Failed to get emailGroupsData on ${window.origin}`, error)
+    }
+
+    if (!userData) return;
+    if (emailGroupsData.email !== userData.user.email) return;
+
+    push(`/profile?group=${emailGroupsData.group}`);
+  }
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_evt, session) => {
       if (session) {
         setIsSignedIn(true);
+        setUserData(session);
       }
     });
   }, []);
@@ -79,16 +106,28 @@ export const Navigation = () => {
       <NavbarContent
         as="div"
         justify="end"
-        className={`md:-mr-28 ${isSignedIn ? "" : "hidden"}`}
+        className={`md:-mr-28`}
       >
-        <Avatar
-          isBordered
-          as="a"
-          className="transition-transform"
-          color="secondary"
-          size="sm"
-          href="/profile?group="
-        />
+        {
+          isSignedIn ? (
+            <Dropdown>
+              <DropdownTrigger>
+                <Avatar
+                  isBordered
+                  className="transition-transform"
+                  color="secondary"
+                  size="sm"
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Static Actions">
+                <DropdownItem key="Profile" as="a" onClick={goToProfile}>Perfil</DropdownItem>
+                <DropdownItem key="SignOut" as="button" onClick={signOut}>Sign Out</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          ) : (
+            <div className="w-auto h-auto"></div>
+          )
+        }
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((item, index) => (

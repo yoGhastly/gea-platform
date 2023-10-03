@@ -60,6 +60,7 @@ export default function CreateProfile() {
   } = state;
 
   const searchParams = useSearchParams();
+  const isEditMode = searchParams.has("edit");
   const { push } = useRouter();
 
   useEffect(() => {
@@ -85,7 +86,10 @@ export default function CreateProfile() {
 
     const { error: errorImage } = await supabase.storage
       .from("profileImages")
-      .upload(`logos/${selectedGroupValue}/${selectedImage.name}`, selectedImage as File); // Cast selectedImage to FileBody
+      .upload(
+        `logos/${selectedGroupValue}/${selectedImage.name}`,
+        selectedImage as File
+      ); // Cast selectedImage to FileBody
     if (errorImage) {
       console.error("Image error", errorImage);
       setLoading(false);
@@ -121,10 +125,57 @@ export default function CreateProfile() {
     dispatch({ type: "SET_FIELD", field, value });
   };
 
+  const editProfile = async () => {
+    setLoading(true);
+
+    if (!selectedImage) {
+      console.error("Group image is not defined.");
+      setLoading(false);
+      return;
+    }
+
+    const { error: errorImage } = await supabase.storage
+      .from("profileImages")
+      .upload(
+        `logos/${selectedGroupValue}/${selectedImage.name}`,
+        selectedImage as File
+      ); // Cast selectedImage to FileBody
+
+    if (errorImage) {
+      console.error("Image error", errorImage);
+      setLoading(false);
+      return;
+    }
+    const updatedData = {
+      group: selectedGroupValue,
+      groupImage: selectedImage?.name,
+      presidentName,
+      bio,
+      instagramUrl,
+      facebookUrl,
+      twitterUrl,
+    };
+
+    // Update the data in Supabase
+    const { data: updatedProfileData, error } = await supabase
+      .from("groups")
+      .update(updatedData)
+      .eq('group', selectedGroupValue);
+
+    if (error) {
+      console.error("Error updating data:", error);
+      setLoading(false);
+    } else {
+      console.log("Data updated successfully:", updatedProfileData);
+      setIsGroupSaved(true);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!isGroupSaved) return;
-    push(`/profile?group=${selectedGroupValue}`)
-  }, [isGroupSaved, push, selectedGroupValue])
+    push(`/profile?group=${selectedGroupValue}`);
+  }, [isGroupSaved, push, selectedGroupValue]);
 
   return searchParams.has("email") ? (
     <main className="min-h-screen p-6">
@@ -132,10 +183,15 @@ export default function CreateProfile() {
         style={{ margin: "0 auto" }}
         className="max-w-3xl flex-grow justify-center items-center md:items-start md:flex gap-10"
       >
-        <ImageUpload onSubmit={handleImageSubmit} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
+        <ImageUpload
+          onSubmit={handleImageSubmit}
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+        />
         <section className="mt-5 md:mt-0">
           <form className="flex flex-col gap-8">
-            <GroupSelector groups={gruposEstudiantiles}
+            <GroupSelector
+              groups={gruposEstudiantiles}
               setSelectedGroup={setSelectedGroup}
             />
             <Input
@@ -206,7 +262,7 @@ export default function CreateProfile() {
             <Button
               variant="solid"
               color="primary"
-              onClick={handleGuardarClick}
+              onClick={!isEditMode ? handleGuardarClick : editProfile}
               disabled={loading}
               isLoading={loading}
             >

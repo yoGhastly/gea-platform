@@ -22,15 +22,15 @@ export interface Profile {
 export default function Profile() {
   const searchParams = useSearchParams();
   const { push } = useRouter();
-  const [profileDetails, setProfileDetails] = useState<Profile | null>(null); // Initialize it with null or an initial value
+  const [profileDetails, setProfileDetails] = useState<Profile | null>(null);
   const [profileImage, setProfileImage] = useState<string>("");
   const [tabSelected, setTabSelected] = useState("Posts");
+  const [emailGroup, setEmailGroup] = useState("");
 
   useEffect(() => {
     if (!searchParams.has("group")) {
       push("/");
     } else {
-      // Fetch data from Supabase and update the profileDetails state
       const group = searchParams.get("group");
 
       const fetchProfileData = async () => {
@@ -44,8 +44,19 @@ export default function Profile() {
             throw error;
           }
 
-          // Update the profileDetails state with the fetched data
           setProfileDetails(data[0]);
+
+          const { data: emailGroupsData, error: errorEmailGroups } =
+            await supabase
+              .from("emailGroups")
+              .select("email")
+              .eq("group", data![0]?.group);
+          if (errorEmailGroups) {
+            throw errorEmailGroups;
+          }
+
+          if (!data) return;
+          setEmailGroup(emailGroupsData![0]?.email);
         } catch (error) {
           console.error("Error fetching profile data:", error);
         }
@@ -125,8 +136,22 @@ export default function Profile() {
                 <p className="text-secondary/80">{profileDetails?.bio}</p>
               </div>
               <div className="flex gap-5">
-                <Button variant="ghost" color="secondary">Editar Perfil</Button>
-                <Button variant="solid" color="secondary" as="a" href="/blog?add=true">Crear Post</Button>
+                <Button
+                  variant="ghost"
+                  color="secondary"
+                  as="a"
+                  href={`/create-profile?email=${encodeURIComponent(emailGroup)}&edit=true`}
+                >
+                  Editar Perfil
+                </Button>
+                <Button
+                  variant="solid"
+                  color="secondary"
+                  as="a"
+                  href="/blog?add=true"
+                >
+                  Crear Post
+                </Button>
               </div>
             </div>
             <Divider orientation="horizontal" className="bg-secondary/30" />
