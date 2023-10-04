@@ -6,3 +6,4 @@ export { EmailInput } from "./EmailInput";
 export { ImageUpload } from "./ImageUpload";
 export { GroupSelector } from "./GroupSelector";
 export { HeaderGradient } from "./HeaderGradient";
+export { CardEvent } from "./CardEvent";

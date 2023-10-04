@@ -7,3 +7,12 @@ export interface Post {
   group: string;
   description: string;
 }
+
+
+export interface Event {
+  day: string;
+  time: string[];
+  activity: string;
+  group: string;
+  place: string;
+}
