@@ -78,7 +78,6 @@ export default function CreateProfile() {
     // Create an object with the data to be saved
     setLoading(true);
 
-
     if (!selectedImage) {
       console.error("Group image is not defined.");
       setLoading(false);
@@ -95,15 +94,22 @@ export default function CreateProfile() {
       twitterUrl,
     };
 
-    const { data: groupsData, error: groupsError } = await supabase.from("groups").select("*").eq('group', selectedGroupValue);
+    const { data: groupsData, error: groupsError } = await supabase
+      .from("groups")
+      .select("*")
+      .eq("group", selectedGroupValue);
     const groups = groupsData;
-    console.log(groups);
-    const hasConflict = groups?.map((group: FormState) => group.group === selectedGroupValue);
 
-    if (hasConflict) {
-      alert(`Ya existe un perfil para ${selectedGroupValue}`);
-      setLoading(false);
-      return;
+    if (groups!.length > 0) {
+      const hasConflict = groups?.map(
+        (group: FormState) => group.group === selectedGroupValue
+      );
+
+      if (hasConflict) {
+        alert(`Ya existe un perfil para ${selectedGroupValue}`);
+        setLoading(false);
+        return;
+      }
     }
 
     const { error: errorImage } = await supabase.storage
@@ -117,7 +123,6 @@ export default function CreateProfile() {
       setLoading(false);
       return;
     }
-
 
     // Save the data to Supabase
     const { data: savedData, error } = await supabase
@@ -173,7 +178,7 @@ export default function CreateProfile() {
     const { data: updatedProfileData, error } = await supabase
       .from("groups")
       .update(updatedData)
-      .eq('group', selectedGroupValue);
+      .eq("group", selectedGroupValue);
 
     if (error) {
       console.error("Error updating data:", error);
