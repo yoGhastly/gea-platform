@@ -37,7 +37,7 @@ export function GroupSelector({ groups, setSelectedGroup }: { groups: string[], 
         disallowEmptySelection
         selectionMode="single"
         selectedKeys={selectedKeys}
-        onSelectionChange={setSelectedKeys}
+        onSelectionChange={setSelectedKeys as any}
       >
         {groups.map((group) => (
           <DropdownItem key={group}>{group}</DropdownItem>
