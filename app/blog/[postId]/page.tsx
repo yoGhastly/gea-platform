@@ -106,7 +106,7 @@ export default function Post({ params }: { params: { postId: string } }) {
 
       <div
         style={{ margin: "0 auto" }}
-        className="article-hero-body pt-3 md:px-6 max-w-4xl md:grid flex md:grid-cols-2"
+        className="article-hero-body pt-3 md:px-6 max-w-4xl md:grid md:grid-cols-2"
       >
         <div className="relative rounded w-[330px] h-[400px] md:w-auto md:h-[600px] md:max-w-xl md:px-6 md:mt-10 md:ml-20 overflow-hidden">
           <Image
