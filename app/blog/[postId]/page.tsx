@@ -117,20 +117,6 @@ export default function Post({ params }: { params: { postId: string } }) {
             className="object-contain"
           />
         </div>
-        <div className="hidden md:flex md:flex-row gap-8">
-          <Divider orientation="vertical" />
-          <div className="flex justify-center gap-5 mt-6">
-            <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="secondary"
-              name={presidentName}
-              size="sm"
-            />
-            <p className="font-semibold">{presidentName}</p>
-          </div>
-        </div>
       </div>
     </main>
   );
