@@ -95,13 +95,9 @@ export default function CreateProfile() {
       twitterUrl,
     };
 
-    const res = await fetch(`${window.origin}/api/groups`, {
-      method: 'GET',
-    })
-
-    const { groups }: { groups: FormState[] } = await res.json();
-
-    const hasConflict = groups.map((group) => group.group === selectedGroupValue);
+    const { data: groupsData, error: groupsError } = await supabase.from("groups").select("*");
+    const groups = groupsData;
+    const hasConflict = groups?.map((group: FormState) => group.group === selectedGroupValue);
 
     if (hasConflict) {
       alert(`Ya existe un perfil para ${selectedGroupValue}`);
