@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Button, Code, Input, Link } from "@nextui-org/react";
+import { Link } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
-import { v4 as uuidv4 } from "uuid";
 import { EmailInput, GroupSelector } from "../components";
 import { gruposEstudiantiles } from "../constants";
 import { useRouter } from "next/navigation";
@@ -19,7 +18,7 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
-        emailRedirectTo: "http://localhost:3000/dashboard?logged=true",
+        emailRedirectTo: `${window.origin}/dashboard?logged=true`,
       },
     });
 
