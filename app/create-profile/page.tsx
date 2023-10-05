@@ -95,8 +95,9 @@ export default function CreateProfile() {
       twitterUrl,
     };
 
-    const { data: groupsData, error: groupsError } = await supabase.from("groups").select("*");
+    const { data: groupsData, error: groupsError } = await supabase.from("groups").select("*").eq('group', selectedGroupValue);
     const groups = groupsData;
+    console.log(groups);
     const hasConflict = groups?.map((group: FormState) => group.group === selectedGroupValue);
 
     if (hasConflict) {
