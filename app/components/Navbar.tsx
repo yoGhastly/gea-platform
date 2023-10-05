@@ -131,7 +131,7 @@ export const Navigation = () => {
       <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
-            <Link className="w-full" href="#">
+            <Link className="w-full" href={`/${item}`}>
               {item}
             </Link>
           </NavbarMenuItem>
