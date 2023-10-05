@@ -8,8 +8,8 @@ interface Props {
 }
 export const PostCard: React.FC<Props> = ({ post }) => {
   return (
-    <article className="flex flex-col gap-2.5 max-w-sm p-3">
-      <div className="relative rounded w-full h-[200px]">
+    <article className="flex flex-col justify-center gap-2.5 w-[330px] md:w-full md:max-w-sm p-3">
+      <div className="relative rounded w-[300px] md:w-[300px] h-[200px]">
         <Image
           src={post.image}
           alt="Post"
@@ -18,18 +18,14 @@ export const PostCard: React.FC<Props> = ({ post }) => {
         />
       </div>
       <p className="font-bold text-lg">{post.title}</p>
-      <p>{post.title}</p>
-      <div className="flex justify-between items-center flex-row gap-2">
-        <Button
-          variant="solid"
-          color="secondary"
-          as="a"
-          href={`${window.origin}/blog/${post.postId}`}
-        >
-          Ver mas
-        </Button>
-        <Chip variant="light">{post.date}</Chip>
-      </div>
+      <Button
+        variant="solid"
+        color="secondary"
+        as="a"
+        href={`${window.origin}/blog/${post.postId}`}
+      >
+        Ver mas
+      </Button>
     </article>
   );
 };

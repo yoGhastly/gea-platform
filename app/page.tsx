@@ -13,14 +13,14 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const [postsRes, pastPostsRes] = await Promise.all([
-          fetch(`${window.origin}/api/posts`, { method: 'GET', next: { revalidate: 300 } }),
+          fetch(`${window.origin}/api/posts/latest`, { method: 'GET', next: { revalidate: 300 } }),
           fetch(`${window.origin}/api/posts/past`, { method: 'GET', next: { revalidate: 300 } }),
         ]);
 
-        const { posts } = await postsRes.json();
+        const { latestPosts } = await postsRes.json();
         const { pastPosts } = await pastPostsRes.json();
 
-        setPosts(posts);
+        setPosts(latestPosts); // Set the filtered and sliced posts
         setPastPosts(pastPosts);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -31,14 +31,14 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col gap-5 items-center justify-between py-3.5 px-24">
+    <main className="flex min-h-screen flex-col gap-5 items-center justify-between md:py-3.5 px-3.5 md:px-24">
       <div className="w-full flex flex-col gap-10 justify-center items-center">
         <Slideshow posts={posts as Post[]} />
         <div className='mt-10 flex flex-col gap-10 items-center justify-center'>
           <h2 className={`${poppins.className} font-semibold font-sans text-center text-4xl md:text-5xl`}>Eventos pasados</h2>
           {
             pastPosts ? (
-              <section className='grid grid-cols-3 gap-10 mx-16'>
+              <section className='grid grid-cols-2 md:grid-cols-3 gap-10 md:mx-16'>
                 {pastPosts.map((post, idx) => (
                   <PostCard key={idx} post={post} />
                 ))}

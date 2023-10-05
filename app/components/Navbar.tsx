@@ -30,7 +30,7 @@ export const Navigation = () => {
   const [userData, setUserData] = useState<Session>();
   const { push } = useRouter();
 
-  const menuItems = ["Inicio", "Grupos Estudiantiles"];
+  const menuItems = [{ label: "Inicio", url: '/' }, { label: "Grupos Estudiantiles", url: '/grupos' }];
 
   const signOut = () => {
     return supabase.auth.signOut();
@@ -131,8 +131,8 @@ export const Navigation = () => {
       <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
-            <Link className="w-full" href={`/${item}`}>
-              {item}
+            <Link className="w-full" href={item.url}>
+              {item.label}
             </Link>
           </NavbarMenuItem>
         ))}

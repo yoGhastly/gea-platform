@@ -2,7 +2,7 @@
 import { Chip, CircularProgress } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Post } from "../interfaces";
 import { useMediaQuery } from "../lib/useMediaQuery";
 
@@ -24,10 +24,22 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
     );
   };
 
+  useEffect(() => {
+    // Use setInterval to trigger nextSlide every 5 seconds
+    const intervalId = setInterval(() => {
+      nextSlide();
+    }, 5000); // 5000 milliseconds = 5 seconds
+
+    // Clear the interval when the component unmounts or when posts change
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [currentSlide, posts]);
+
   if (!posts) return <CircularProgress color="primary" />
 
   return (
-    <div className="relative w-[370px] h-[350px] md:w-full md:min-h-[700px] rounded-2xl overflow-hidden">
+    <div className="relative w-[370px] h-[350px] md:w-full md:min-h-[700px] md:rounded-2xl overflow-hidden">
       {posts.map((post, index) => (
         <img
           key={index}
@@ -39,10 +51,10 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
             }`}
         />
       ))}
-      <div className="absolute inset-0 bg-black opacity-40 rounded-lg"></div>
+      <div className="absolute inset-0 bg-black opacity-40 md:rounded-lg"></div>
       <div className="absolute inset-0 flex flex-col items-start justify-between md:ml-24">
         <Chip
-          variant="shadow"
+          variant="flat"
           size="lg"
           color="primary"
           className="basis-10 my-5 mx-5 md:my-20 md:mx-0"
@@ -53,11 +65,11 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
           )}
         </Chip>
 
-        <div className="flex gap-5 md:gap-10 flex-col md:basis-3/5 text-white">
+        <div className="flex gap-2 md:gap-10 flex-col md:basis-3/5 text-white">
           <p className="text-2xl md:text-4xl my-5 mx-5 md:my-0 md:mx-0">
             GEITS
           </p>
-          <p className="text-4xl md:text-6xl my-5 mx-5 md:my-0 md:mx-0 font-extrabold max-w-md leading-normal">
+          <p className="text-4xl md:text-6xl my-14 mx-5 md:my-0 md:mx-0 font-extrabold max-w-md leading-normal">
             {posts[currentSlide].title}
           </p>
         </div>
@@ -68,7 +80,7 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`h-2 w-2 md:h-4 md:w-4 rounded-full mx-1 md:mx-2 focus:outline-none self-center transition-opacity duration-300 ${index === currentSlide
+              className={`h-3 w-3 md:h-4 md:w-4 rounded-full mx-1 md:mx-2 focus:outline-none self-center transition-opacity duration-300 ${index === currentSlide
                 ? "bg-white opacity-100"
                 : "bg-gray opacity-60"
                 }`}
