@@ -78,8 +78,33 @@ export default function CreateProfile() {
     // Create an object with the data to be saved
     setLoading(true);
 
+
     if (!selectedImage) {
       console.error("Group image is not defined.");
+      setLoading(false);
+      return;
+    }
+
+    const data = {
+      group: selectedGroupValue,
+      groupImage: selectedImage?.name,
+      presidentName,
+      bio,
+      instagramUrl,
+      facebookUrl,
+      twitterUrl,
+    };
+
+    const res = await fetch(`${window.origin}/api/groups`, {
+      method: 'GET',
+    })
+
+    const { groups }: { groups: FormState[] } = await res.json();
+
+    const hasConflict = groups.map((group) => group.group === selectedGroupValue);
+
+    if (hasConflict) {
+      alert(`Ya existe un perfil para ${selectedGroupValue}`);
       setLoading(false);
       return;
     }
@@ -96,15 +121,6 @@ export default function CreateProfile() {
       return;
     }
 
-    const data = {
-      group: selectedGroupValue,
-      groupImage: selectedImage?.name,
-      presidentName,
-      bio,
-      instagramUrl,
-      facebookUrl,
-      twitterUrl,
-    };
 
     // Save the data to Supabase
     const { data: savedData, error } = await supabase
@@ -256,9 +272,6 @@ export default function CreateProfile() {
                 }
               />
             ))}
-            <Button as="a" href="/" color="secondary" variant="solid">
-              Agregar Miembros
-            </Button>
             <Button
               variant="solid"
               color="primary"

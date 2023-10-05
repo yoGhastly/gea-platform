@@ -34,7 +34,8 @@ export default function Post({ params }: { params: { postId: string } }) {
       const { data: imageData } = supabase.storage
         .from("postImages")
         .getPublicUrl(
-          `images/${postData![0]?.group}_${postData![0]?.date}/${postData![0]?.image}`
+          `images/${postData![0]?.group}_${postData![0]?.date}/${postData![0]?.image
+          }`
         );
       console.log(imageData.publicUrl);
 
@@ -67,7 +68,7 @@ export default function Post({ params }: { params: { postId: string } }) {
       <HeaderGradient>
         <div style={{ margin: "0 auto" }} className="max-w-5xl">
           <div className="ml-auto w-auto">
-            <div className="pt-2 text-secondary">
+            <div className="pt-2 text-secondary text-sm md:text-md">
               <Link href="/" style={{ transition: "#000 .1s ease" }}>
                 ← Volver a Inicio
               </Link>
@@ -78,6 +79,8 @@ export default function Post({ params }: { params: { postId: string } }) {
             <div className="flex gap-5 ">
               <Chip
                 variant="flat"
+                as="a"
+                href={`/profile?group=${postDetails?.group}`}
                 classNames={{
                   base: "bg-gradient-to-br from-[#DD5E89] to-[#F7BB97] border-small border-white/50 shadow-pink-500/30",
                   content: "text-black",
@@ -86,7 +89,11 @@ export default function Post({ params }: { params: { postId: string } }) {
                 {postDetails?.group}
               </Chip>
               <Chip variant="light">
-                <p className="text-gray">{postDetails?.date.match(/(\d{2}_\d{2}_\d{4})/)![0].replace(/_/g, " ")}</p>
+                <p className="text-gray">
+                  {postDetails?.date
+                    .match(/(\d{2}_\d{2}_\d{4})/)![0]
+                    .replace(/_/g, " ")}
+                </p>
               </Chip>
             </div>
             <h1 className="text-5xl font-bold mt-6">{postDetails?.title}</h1>
@@ -99,9 +106,9 @@ export default function Post({ params }: { params: { postId: string } }) {
 
       <div
         style={{ margin: "0 auto" }}
-        className="article-hero-body pt-3 px-6 max-w-4xl md:grid flex flex-col md:grid-cols-2"
+        className="article-hero-body pt-3 md:px-6 max-w-4xl md:grid flex md:grid-cols-2"
       >
-        <div className="relative rounded w-auto h-[600px] max-w-xl px-6 mt-10 md:ml-20 overflow-hidden">
+        <div className="relative rounded w-[330px] h-[400px] md:w-auto md:h-[600px] md:max-w-xl md:px-6 md:mt-10 md:ml-20 overflow-hidden">
           <Image
             src={imageSrc}
             alt="Post"
@@ -110,7 +117,7 @@ export default function Post({ params }: { params: { postId: string } }) {
             className="object-contain"
           />
         </div>
-        <div className="flex gap-8">
+        <div className="hidden md:flex md:flex-row gap-8">
           <Divider orientation="vertical" />
           <div className="flex justify-center gap-5 mt-6">
             <Avatar

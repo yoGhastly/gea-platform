@@ -6,6 +6,8 @@ import { HeaderGradient } from "../components";
 import Image from "next/image";
 import { Button, Divider, Tab, Tabs } from "@nextui-org/react";
 import Link from "next/link";
+import { useMediaQuery } from "../lib/useMediaQuery";
+import { Post } from "../interfaces";
 
 export interface Profile {
   id: string;
@@ -22,10 +24,22 @@ export interface Profile {
 export default function Profile() {
   const searchParams = useSearchParams();
   const { push } = useRouter();
+  const group = searchParams.get("group");
   const [profileDetails, setProfileDetails] = useState<Profile | null>(null);
   const [profileImage, setProfileImage] = useState<string>("");
   const [tabSelected, setTabSelected] = useState("Posts");
   const [emailGroup, setEmailGroup] = useState("");
+  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [showButtons, setShowButtons] = useState(false);
+  const isSm = useMediaQuery(480);
+
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((_evt, session) => {
+      if (session) {
+        setShowButtons(true);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (!searchParams.has("group")) {
@@ -68,7 +82,6 @@ export default function Profile() {
 
   useEffect(() => {
     if (!profileDetails) return;
-    const group = searchParams.get("group");
     const filename = profileDetails.groupImage;
     const getProfileImage = async () => {
       try {
@@ -84,14 +97,30 @@ export default function Profile() {
       }
     };
     getProfileImage();
-  }, [profileDetails, searchParams]);
+  }, [profileDetails, searchParams, group]);
+
+  useEffect(() => {
+    const getPostsByGroup = async (group: string) => {
+      try {
+        const res = await fetch(`${window.origin}/api/posts`, {
+          method: "GET",
+        });
+        const { posts }: { posts: Post[] } = await res.json();
+        const groupPosts = posts.filter((post) => post.group === group);
+        setPosts(groupPosts);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    getPostsByGroup(group as string);
+  }, [group]);
 
   return (
     <main className="min-h-screen">
       <div style={{ margin: "0 auto" }}>
         <HeaderGradient>
-          <div className="w-full relative flex items-center justify-between">
-            <div className="relative w-[150px] h-[150px] z-20 ml-16">
+          <div className="w-full relative flex items-center gap-5 justify-between">
+            <div className="relative w-[100px] h-[100px] md:w-[150px] md:h-[150px] z-20 md:ml-16">
               <Image
                 src={profileImage as string}
                 alt={`${searchParams.get("group")}-logo`}
@@ -100,7 +129,7 @@ export default function Profile() {
               />
             </div>
             <Divider orientation="horizontal" className="absolute z-10" />
-            <div className="flex items-center gap-3 mr-16 mt-14">
+            <div className="flex items-center gap-3 md:mr-16 mt-10 md:mt-14">
               {[
                 {
                   url: `https://facebook.com/${profileDetails?.facebookUrl}`,
@@ -118,8 +147,8 @@ export default function Profile() {
                 <Link href={opt.url} key={idx}>
                   <Image
                     src={opt.icon}
-                    width={32}
-                    height={32}
+                    width={isSm ? 28 : 32}
+                    height={isSm ? 28 : 32}
                     alt={`${opt.icon}`}
                   />
                 </Link>
@@ -127,20 +156,26 @@ export default function Profile() {
             </div>
           </div>
           <section
-            style={{ margin: "40px 64px" }}
+            style={{ margin: `${isSm ? "40px 0px" : "40px 64px"}` }}
             className="flex flex-col gap-10"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex gap-8 md:gap-0 flex-col md:flex-row item-start md:items-center justify-between">
               <div>
-                <h1 className="font-bold text-4xl">{profileDetails?.group}</h1>
-                <p className="text-secondary/80">{profileDetails?.bio}</p>
+                <h1 className="font-extrabold text-2xl md:text-4xl">
+                  {profileDetails?.group}
+                </h1>
+                <p className="text-secondary/80 text-md md:text-2xl">
+                  {profileDetails?.bio}
+                </p>
               </div>
-              <div className="flex gap-5">
+              <div className={`${showButtons ? "flex gap-5" : "hidden"}`}>
                 <Button
                   variant="ghost"
                   color="secondary"
                   as="a"
-                  href={`/create-profile?email=${encodeURIComponent(emailGroup)}&edit=true`}
+                  href={`/create-profile?email=${encodeURIComponent(
+                    emailGroup
+                  )}&edit=true`}
                 >
                   Editar Perfil
                 </Button>
@@ -165,8 +200,7 @@ export default function Profile() {
               onSelectionChange={setTabSelected as any}
             >
               {[
-                { label: "Posts", icon: "/grid.svg" },
-                { label: "Miembros", icon: "/members.svg" },
+                { label: "Posts", icon: "/grid.svg", content: posts },
               ].map((opt) => (
                 <Tab
                   key={opt.label}
@@ -182,8 +216,25 @@ export default function Profile() {
                     </div>
                   }
                 >
-                  <section className="flex justify-center items-center">
-                    {opt.label}
+                  <section className="grid grid-cols-3 md:grid-cols-4 w-full">
+                    <div className="relative w-[150px] h-[150px] md:w-[300px] md:h-[300px]">
+                      {tabSelected === 'Posts' && opt.label === 'Posts' && (
+                        <section className="grid grid-cols-3 md:grid-cols-4 w-full">
+                          <div className="relative w-[150px] h-[150px] md:w-[300px] md:h-[300px]">
+                            {opt.content?.map((post, idx) => (
+                              <Image
+                                key={idx}
+                                src={post.image}
+                                alt={post.title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                className="object-cover"
+                              />
+                            ))}
+                          </div>
+                        </section>
+                      )}
+                    </div>
                   </section>
                 </Tab>
               ))}

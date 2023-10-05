@@ -1,15 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Button, Code, Input } from "@nextui-org/react";
+import { Button, Code, Input, Link } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
 import { v4 as uuidv4 } from "uuid";
 import { EmailInput, GroupSelector } from "../components";
 import { gruposEstudiantiles } from "../constants";
+import { useRouter } from "next/navigation";
+import { useMediaQuery } from "../lib/useMediaQuery";
 
 function RenderSignIn({ errorMessage }: { errorMessage: string }) {
   const [isLoading, setLoading] = useState(false);
   const [email, onEmailChange] = useState("");
+  const { push } = useRouter();
 
   const registerAdmin = async ({ email }: { email: string }) => {
     setLoading(true);
@@ -22,11 +25,11 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
 
     const { error: errorDbInsert } = await supabase.from("admin email").insert([
       {
-        id: uuidv4(),
         email: email,
       },
     ]);
 
+    push(`/verify?email=${encodeURIComponent(email)}`);
     setLoading(false);
 
     if (error && errorDbInsert) {
@@ -37,12 +40,12 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
   };
   return (
     <main className="min-h-screen">
-      <div className="grid grid-cols-2">
+      <div className="md:krid md:grid-cols-2">
         <div
-          className="relative max-w-4xl h-screen basis-3/4"
+          className="hidden md:relative max-w-4xl h-screen basis-3/4"
           style={{ background: `url(/doodles.svg)` }}
         ></div>
-        <div className="max-w-md basis-1/5 flex flex-col gap-10 justify-center items-center m-auto">
+        <div className="max-w-md mt-10 md:mt-0 basis-1/5 flex flex-col gap-10 justify-center items-center m-auto">
           <h1 className="font-bold text-5xl">Sign In</h1>
           <EmailInput
             value={email}
@@ -70,6 +73,7 @@ export default function Dashboard() {
   const [errorMessage, _setErrorMessage] = useState(
     "Please enter a valid email"
   );
+  const isSm = useMediaQuery(480);
 
   const showAddGroupInput = () => {
     setShowInput(true);
@@ -89,7 +93,6 @@ export default function Dashboard() {
       alert("Email ya existe, intenta con uno nuevo");
       return;
     }
-
 
     const { error } = await supabase.from("emailGroups").insert([
       {
@@ -118,16 +121,16 @@ export default function Dashboard() {
   return isEmailLogged ? (
     <main className="min-h-screen">
       <div style={{ margin: "0 auto" }}>
-        <section className="flex items-center gap-10 md:px-24 py-6">
+        <section className="flex flex-col md:flex-row items-center gap-10 px-5 md:px-24 py-6">
           <button
             onClick={showAddGroupInput}
-            className="w-[300px] h-[300px] bg-primary/20 p-3 flex flex-col justify-center items-center rounded"
+            className="w-[150px] h-[150px] md:w-[300px] md:h-[300px] bg-primary/20 p-3 flex flex-col justify-center items-center rounded"
           >
             <Image
               src="/plus-circle.svg"
               alt="Icon Add"
-              width={100}
-              height={100}
+              width={isSm ? 32 : 100}
+              height={isSm ? 32 : 100}
             />
             <p>
               {showInput
@@ -135,8 +138,11 @@ export default function Dashboard() {
                 : "Agregar Grupo Estudiantil"}
             </p>
           </button>
-          <div className={`${showInput ? "flex flex-col gap-5 max-w-xl" : "hidden"}`}>
-            <div className="flex gap-5 w-full">
+          <div
+            className={`${showInput ? "flex flex-col gap-5 w-[300px] md:max-w-xl" : "hidden"
+              }`}
+          >
+            <div className="flex flex-col md:flex-row gap-5 w-full">
               <EmailInput
                 value={groupEmailToAdd}
                 setState={setGroupEmailToAdd}
@@ -147,16 +153,30 @@ export default function Dashboard() {
                 errorMessage={errorMessage}
               />
               <div className={`${showInviteLink ? "hidden" : ""}`}>
-                <GroupSelector groups={gruposEstudiantiles} setSelectedGroup={setGroupToAdd} />
+                <GroupSelector
+                  groups={gruposEstudiantiles}
+                  setSelectedGroup={setGroupToAdd}
+                />
               </div>
             </div>
             <p className={`${showInviteLink ? "block" : "hidden"}`}>
               {" "}
               Tu link de invitación para crear un perfil de Grupo Estudiantil:
             </p>
-            <Code color="primary" className={`${showInviteLink ? "block" : "hidden"}`}>
-              {`http://localhost:3000/create-profile?email=${encodeURIComponent(groupEmailToAdd)}`}
-            </Code>
+            <Link
+              color="primary"
+              className={`${showInviteLink ? "block" : "hidden"}`}
+              size={`${isSm ? "sm" : "md"}`}
+              showAnchorIcon
+              isBlock
+              isExternal
+              href=
+              {`${window.origin}/create-profile?email=${encodeURIComponent(
+                groupEmailToAdd
+              )}`}
+            >
+              {`${window.origin}/create-profile?email=${encodeURIComponent(groupEmailToAdd)}`}
+            </Link>
           </div>
         </section>
       </div>

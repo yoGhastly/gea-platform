@@ -20,9 +20,8 @@ import {
 import { Link } from ".";
 import Image from "next/image";
 import { supabase } from "../lib/supabase";
-import { Session, User } from "@supabase/supabase-js";
+import { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { classicNameResolver } from "typescript";
 
 export const Navigation = () => {
   const pathname = usePathname();

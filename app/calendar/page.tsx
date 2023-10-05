@@ -9,7 +9,7 @@ import "@wojtekmaj/react-timerange-picker/dist/TimeRangePicker.css";
 import { CardEvent, GroupSelector } from "../components";
 import { Event } from "../interfaces/";
 import { gruposEstudiantiles } from "../constants";
-import { Button, Card, CircularProgress, Input, Skeleton } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
 
 // Define the state type
@@ -53,7 +53,6 @@ export default function Calendar() {
   const [events, setEvents] = useState<Event[] | null>(null);
 
   const saveEvent = async () => {
-    // Access values from state
     setLoading(true);
     try {
       const cardData = {
@@ -66,44 +65,76 @@ export default function Calendar() {
         place: state.place,
       };
 
-      const { error } = await supabase.from("events").insert([cardData]);
+      // Check for conflicting events
+      const hasConflict = events?.some((event) => {
+        return (
+          event.day === cardData.day && JSON.stringify(event.time) === JSON.stringify(cardData.time)
+        );
+      });
 
-      if (error) {
-        console.error("Failed to save event on Events table", error);
+      if (hasConflict) {
+        alert("Un evento ya existe con esa hora y dia, intenta nuevamente.");
         setLoading(false);
         return;
       }
+
+      // If no conflicting event exists, save the new event
+      const { error: saveError } = await supabase.from("events").insert([cardData]);
+
+      if (saveError) {
+        console.error("Failed to save event on Events table", saveError);
+        alert(`Failed to save event on Events table ${saveError.message}`);
+        setLoading(false);
+        return;
+      }
+      alert('Evento creado.');
+      // Clear error message and reset the form
+      setErrorMessage("");
+      dispatch({ type: "SET_ACTIVITY", payload: "" });
+      dispatch({ type: "SET_PLACE", payload: "" });
+      setSelectedGroup("");
+      setStartDate(new Date());
+      onChange(["00:00", "00:00"]);
+
       setLoading(false);
     } catch (error) {
-      throw error;
+      console.error(error);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const getEvents = async () => {
-      const { data: eventsData, error } = await supabase
-        .from("events")
-        .select("*");
-      if (error) {
-        setErrorMessage(error.message);
-        return;
+      try {
+        const res = await fetch(`${window.origin}/api/events`, {
+          method: 'GET',
+        });
+        const eventsData = await res.json();
+
+        setEvents(eventsData.events);
+      } catch (e) {
+        console.error(e);
       }
-      setEvents(eventsData);
     };
     getEvents();
   }, []);
 
+
   return (
     <main className="min-h-screen">
       <div className="flex container gap-5 h-screen">
-        <section className="basis-1/3 p-3 flex flex-col gap-5  items-center border-r border-secondary/20">
+        <section className="sticky basis-1/3 p-3 flex flex-col gap-5  items-center border-r border-secondary/20">
           <DatePicker
             selected={startDate}
             onChange={(date) => setStartDate(date as Date)}
             showIcon
             inline
           />
-          <TimeRangePicker onChange={onChange} value={value} disableClock />
+          {
+            events && (
+              <TimeRangePicker onChange={onChange} value={value} disableClock />
+            )
+          }
           <div className="w-[320px] flex flex-col gap-5">
             <Input
               type="text"
@@ -137,7 +168,7 @@ export default function Calendar() {
           </Button>
         </section>
 
-        <section className="basis-auto p-3 flex flex-grow gap-5">
+        <section className="basis-auto px-3 py-1.5 grid grid-cols-3 gap-5">
           {
             events && (
               events.map((event, idx) => (

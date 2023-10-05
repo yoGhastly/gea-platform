@@ -21,8 +21,14 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
   padding: 0 24px;
-  padding-top: 0px;
-  padding-right: 24px;
-  padding-bottom: 0px;
-  padding-left: 24px;
+}
+
+@media (min-width: 640px) {
+  .article-hero-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    padding: 0 14px;
+  }
 }
