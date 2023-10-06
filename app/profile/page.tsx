@@ -133,6 +133,10 @@ export default function Profile() {
             <div className="flex items-center gap-3 md:mr-16 mt-10 md:mt-14">
               {[
                 {
+                  url: `${BASE_URL}/calendar`,
+                  icon: "/calendar.svg",
+                },
+                {
                   url: `https://facebook.com/${profileDetails?.facebookUrl}`,
                   icon: "/facebook.svg",
                 },
