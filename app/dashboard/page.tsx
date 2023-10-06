@@ -138,7 +138,7 @@ export default function Dashboard() {
             </p>
           </button>
           <div
-            className={`${showInput ? "flex flex-col gap-5 w-[300px] md:max-w-xl" : "hidden"
+            className={`${showInput ? "flex flex-col gap-5 w-[300px] md:max-w-2xl" : "hidden"
               }`}
           >
             <div className="flex flex-col md:flex-row gap-5 w-full">
