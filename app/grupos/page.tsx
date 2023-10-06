@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 interface Group {
   groupImage: string;
@@ -12,13 +13,13 @@ export default function GroupsPage() {
 
   useEffect(() => {
     const getGroups = async () => {
-      const res = await fetch(`${window.origin}/api/groups`, {
-        method: "GET",
-        next: { revalidate: 3600 }
-      });
-
-      const { groups } = await res.json();
-      setGroups(groups);
+      const { data: groupsData, error: errorGroups } = await supabase.from("groups").select("*");
+      if (errorGroups) {
+        console.error(errorGroups);
+        setGroups([]);
+        return;
+      }
+      setGroups(groupsData);
     };
     getGroups();
   }, []);

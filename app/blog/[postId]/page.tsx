@@ -88,6 +88,7 @@ export default function Post({ params }: { params: { postId: string } }) {
               >
                 {postDetails?.group}
               </Chip>
+              <p>@{presidentName}</p>
               <Chip variant="light">
                 <p className="text-gray">
                   {postDetails?.date
