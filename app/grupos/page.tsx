@@ -19,7 +19,14 @@ export default function GroupsPage() {
         setGroups([]);
         return;
       }
-      setGroups(groupsData);
+
+      const updatedGroupsData = groupsData.map((group) => {
+        const { data: imageData } = supabase.storage.from("profileImages").getPublicUrl(
+          `logos/${group.group}/${group.groupImage}`
+        );
+        return { ...group, groupImage: imageData.publicUrl };
+      });
+      setGroups(updatedGroupsData);
     };
     getGroups();
   }, []);
