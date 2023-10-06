@@ -26,7 +26,11 @@ export default function GroupsPage() {
         );
         return { ...group, groupImage: imageData.publicUrl };
       });
-      setGroups(updatedGroupsData);
+
+      if (updatedGroupsData.length > 0) {
+        console.log(updatedGroupsData);
+        setGroups(updatedGroupsData);
+      }
     };
     getGroups();
   }, []);

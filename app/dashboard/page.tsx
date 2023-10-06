@@ -167,7 +167,6 @@ export default function Dashboard() {
               className={`${showInviteLink ? "block" : "hidden"}`}
               size={`${isSm ? "sm" : "md"}`}
               showAnchorIcon
-              isBlock
               isExternal
               href=
               {`${window.origin}/create-profile?email=${encodeURIComponent(
