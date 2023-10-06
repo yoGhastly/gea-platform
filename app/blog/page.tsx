@@ -134,8 +134,8 @@ export default function CrearPost() {
         </section>
         <div className={`${showPostUrl ? "flex flex-col gap-2" : "hidden"}`}>
           <p>Listo! Tu Post se ha creado correctamente, este es su link:</p>
-          <Code color="primary" as="a" href={`http://localhost:3000/blog/${encodeURI(postId)}`} target="_blank">
-            {`http://localhost:3000/blog/${encodeURI(postId)}`}
+          <Code color="primary" as="a" href={`${window.origin}/blog/${encodeURI(postId)}`} target="_blank">
+            {`${window.origin}/blog/${encodeURI(postId)}`}
           </Code>
         </div>
       </div>
