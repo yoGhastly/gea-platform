@@ -40,7 +40,7 @@ export const Navigation = () => {
     const { data: emailGroupsData, error } = await supabase.from("emailGroups").select("*").single();
 
     if (error) {
-      console.error(`Failed to get emailGroupsData on ${window.origin}`, error)
+      console.error(`Failed to get emailGroupsData`, error)
     }
 
     if (!userData) return;

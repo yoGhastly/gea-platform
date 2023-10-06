@@ -4,6 +4,7 @@ import { PostCard, Slideshow } from './components';
 import { poppins } from './fonts';
 import { Post } from './interfaces';
 import Image from 'next/image';
+import { BASE_URL } from './constants';
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -13,8 +14,8 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const [postsRes, pastPostsRes] = await Promise.all([
-          fetch(`${window.origin}/api/posts/latest`, { method: 'GET', next: { revalidate: 300 } }),
-          fetch(`${window.origin}/api/posts/past`, { method: 'GET', next: { revalidate: 300 } }),
+          fetch(`${BASE_URL}/api/posts/latest`, { method: 'GET', next: { revalidate: 300 } }),
+          fetch(`${BASE_URL}/api/posts/past`, { method: 'GET', next: { revalidate: 300 } }),
         ]);
 
         const { latestPosts } = await postsRes.json();

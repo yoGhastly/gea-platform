@@ -8,7 +8,7 @@ import "@wojtekmaj/react-timerange-picker/dist/TimeRangePicker.css";
 
 import { CardEvent, GroupSelector } from "../components";
 import { Event } from "../interfaces/";
-import { gruposEstudiantiles } from "../constants";
+import { BASE_URL, gruposEstudiantiles } from "../constants";
 import { Button, Input } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
 
@@ -106,7 +106,7 @@ export default function Calendar() {
   useEffect(() => {
     const getEvents = async () => {
       try {
-        const res = await fetch(`${window.origin}/api/events`, {
+        const res = await fetch(`${BASE_URL}/api/events`, {
           method: 'GET',
         });
         const eventsData = await res.json();

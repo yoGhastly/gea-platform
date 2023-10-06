@@ -3,6 +3,7 @@ import { Button, Chip } from "@nextui-org/react";
 import Image from "next/image";
 import React from "react";
 import { Post } from "../interfaces";
+import { BASE_URL } from "../constants";
 interface Props {
   post: Post;
 }
@@ -22,7 +23,7 @@ export const PostCard: React.FC<Props> = ({ post }) => {
         variant="solid"
         color="secondary"
         as="a"
-        href={`${window.origin}/blog/${post.postId}`}
+        href={`${BASE_URL}/blog/${post.postId}`}
       >
         Ver mas
       </Button>

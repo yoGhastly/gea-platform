@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Link } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
 import { EmailInput, GroupSelector } from "../components";
-import { gruposEstudiantiles } from "../constants";
+import { BASE_URL, gruposEstudiantiles } from "../constants";
 import { useRouter } from "next/navigation";
 import { useMediaQuery } from "../lib/useMediaQuery";
 
@@ -18,7 +18,7 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
-        emailRedirectTo: `${window.origin}/dashboard?logged=true`,
+        emailRedirectTo: `${BASE_URL}/dashboard?logged=true`,
       },
     });
 
@@ -169,11 +169,11 @@ export default function Dashboard() {
               showAnchorIcon
               isExternal
               href=
-              {`${window.origin}/create-profile?email=${encodeURIComponent(
+              {`${BASE_URL}/create-profile?email=${encodeURIComponent(
                 groupEmailToAdd
               )}`}
             >
-              {`${window.origin}/create-profile?email=${encodeURIComponent(groupEmailToAdd)}`}
+              {`${BASE_URL}/create-profile?email=${encodeURIComponent(groupEmailToAdd)}`}
             </Link>
           </div>
         </section>

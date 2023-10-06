@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { EmailInput } from "../components";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
+import { BASE_URL } from "../constants";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -25,7 +26,7 @@ export default function SignIn() {
       if (data.email === email) {
         const { error } = await supabase.auth.signInWithOtp({
           email: email, options: {
-            emailRedirectTo: `${window.origin}/profile?=${encodeURIComponent(data.group)}`,
+            emailRedirectTo: `${BASE_URL}/profile?=${encodeURIComponent(data.group)}`,
           }
         });
 

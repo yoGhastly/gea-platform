@@ -8,6 +8,7 @@ import { Button, Divider, Tab, Tabs } from "@nextui-org/react";
 import Link from "next/link";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { Post } from "../interfaces";
+import { BASE_URL } from "../constants";
 
 export interface Profile {
   id: string;
@@ -102,7 +103,7 @@ export default function Profile() {
   useEffect(() => {
     const getPostsByGroup = async (group: string) => {
       try {
-        const res = await fetch(`${window.origin}/api/posts`, {
+        const res = await fetch(`${BASE_URL}/api/posts`, {
           method: "GET",
         });
         const { posts }: { posts: Post[] } = await res.json();

@@ -5,7 +5,7 @@ import { GroupSelector, ImageUpload } from "../components";
 import { Button, Code, Input, Textarea } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
 import { v4 as uuidv4 } from "uuid";
-import { gruposEstudiantiles } from "../constants";
+import { BASE_URL, gruposEstudiantiles } from "../constants";
 
 export default function CrearPost() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -134,8 +134,8 @@ export default function CrearPost() {
         </section>
         <div className={`${showPostUrl ? "flex flex-col gap-2" : "hidden"}`}>
           <p>Listo! Tu Post se ha creado correctamente, este es su link:</p>
-          <Code color="primary" as="a" href={`${window.origin}/blog/${encodeURI(postId)}`} target="_blank">
-            {`${window.origin}/blog/${encodeURI(postId)}`}
+          <Code color="primary" as="a" href={`${BASE_URL}/blog/${encodeURI(postId)}`} target="_blank">
+            {`${BASE_URL}/blog/${encodeURI(postId)}`}
           </Code>
         </div>
       </div>

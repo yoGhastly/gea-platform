@@ -6,7 +6,6 @@ import { Button, CircularProgress, Input, Textarea } from "@nextui-org/react";
 import { GroupSelector, ImageUpload } from "../components";
 import { gruposEstudiantiles } from "../constants";
 import { supabase } from "../lib/supabase";
-import { careers } from "../constants/grupos";
 
 interface FormState {
   group: string;
