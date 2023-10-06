@@ -56,7 +56,7 @@ export default function Home() {
           <h2 className={`${poppins.className} font-semibold font-sans text-center text-4xl md:text-5xl`}>Eventos pasados</h2>
           {
             pastPosts ? (
-              <section className='grid grid-cols-2 md:grid-cols-3 gap-10 md:mx-16'>
+              <section className='grid grid-cols-1 md:grid-cols-3 gap-10 md:mx-16'>
                 {pastPosts.map((post, idx) => (
                   <PostCard key={idx} post={post} />
                 ))}
