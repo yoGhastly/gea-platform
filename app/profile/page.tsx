@@ -138,7 +138,7 @@ export default function Profile() {
                 },
                 {
                   url: `https://instagram.com/${profileDetails?.instagramUrl}`,
-                  icon: "/instagram.svg",
+                  icon: "/Instagram.svg",
                 },
                 {
                   url: `https://twitter.com/${profileDetails?.twitterUrl}`,
