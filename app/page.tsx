@@ -5,6 +5,7 @@ import { poppins } from './fonts';
 import { Post } from './interfaces';
 import Image from 'next/image';
 import { BASE_URL } from './constants';
+import { supabase } from './lib/supabase';
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -13,15 +14,31 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [postsRes, pastPostsRes] = await Promise.all([
-          fetch(`${BASE_URL}/api/posts/latest`, { method: 'GET', next: { revalidate: 300 } }),
+        const [pastPostsRes] = await Promise.all([
           fetch(`${BASE_URL}/api/posts/past`, { method: 'GET', next: { revalidate: 300 } }),
         ]);
 
-        const { latestPosts } = await postsRes.json();
+        const { data: latestPostsData, error: latestPostsError } = await supabase
+          .from("posts")
+          .select("*")
+          .order('created_at', { ascending: false }) // Order by created_at in descending order to get the latest posts first
+          .limit(5); // Limit the result to the latest 5 posts
+
+        if (latestPostsError) {
+          console.error("Could not retrieve latest posts", latestPostsError);
+        }
+
+        // Process data for both past and latest posts as needed
+        const updatedLatestPostsData = latestPostsData?.map((post) => {
+          const { data: imageData } = supabase.storage.from("postImages").getPublicUrl(
+            `images/${post.group}_${post.date}/${post.image}`
+          );
+          return { ...post, image: imageData.publicUrl };
+        });
+
         const { pastPosts } = await pastPostsRes.json();
 
-        setPosts(latestPosts); // Set the filtered and sliced posts
+        setPosts(updatedLatestPostsData as Post[]); // Set the filtered and sliced posts
         setPastPosts(pastPosts);
       } catch (error) {
         console.error('Error fetching data:', error);

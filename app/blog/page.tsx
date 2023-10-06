@@ -60,7 +60,7 @@ export default function CrearPost() {
         description,
       };
 
-      const res = await fetch("/api", {
+      const res = await fetch(`${BASE_URL}/api/`, {
         method: "POST",
         body: JSON.stringify(data),
       });
