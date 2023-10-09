@@ -4,7 +4,6 @@ import { PostCard, Slideshow } from './components';
 import { poppins } from './fonts';
 import { Post } from './interfaces';
 import Image from 'next/image';
-import { BASE_URL } from './constants';
 import { supabase } from './lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -72,7 +71,7 @@ export default function Home() {
         <div className='mt-10 flex flex-col gap-10 items-center justify-center'>
           <h2 className={`${poppins.className} font-semibold font-sans text-center text-4xl md:text-5xl`}>Eventos pasados</h2>
           {
-            pastPosts ? (
+            pastPosts?.length ? (
               <section className='grid grid-cols-1 md:grid-cols-3 gap-10 md:mx-16'>
                 {pastPosts.map((post, idx) => (
                   <PostCard key={idx} post={post} />
