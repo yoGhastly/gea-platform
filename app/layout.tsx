@@ -8,7 +8,7 @@ import { Navigation } from './components/Navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'GEA',
+  title: 'GEA | FIME',
   description: 'Una plataforma para los grupos estudiantiles | GEA',
 }
 

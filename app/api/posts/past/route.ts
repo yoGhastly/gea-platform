@@ -1,6 +1,6 @@
 import { supabase } from "@/app/lib/supabase";
 import { NextResponse } from "next/server";
-
+export const revalidate = 0
 export async function GET() {
   try {
     // Calculate the date one week ago from the current date

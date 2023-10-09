@@ -9,16 +9,15 @@ import "@wojtekmaj/react-timerange-picker/dist/TimeRangePicker.css";
 import { CardEvent, GroupSelector } from "../components";
 import { Event } from "../interfaces/";
 import { BASE_URL, gruposEstudiantiles } from "../constants";
-import { Button, Input } from "@nextui-org/react";
+import { Button, CircularProgress, Input } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
+import Image from "next/image";
 
-// Define the state type
 type State = {
   activity: string;
   place: string;
 };
 
-// Define the action type
 type Action =
   | { type: "SET_ACTIVITY"; payload: string }
   | { type: "SET_PLACE"; payload: string };
@@ -47,10 +46,19 @@ export default function Calendar() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [startDate, setStartDate] = useState(new Date());
   const [selectedGroup, setSelectedGroup] = useState("");
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [value, onChange] = useState<Value>(["00:00", "00:00"]);
   const [error, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<Event[] | null>(null);
+
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((_evt, session) => {
+      if (session) {
+        setIsSignedIn(true);
+      }
+    });
+  }, []);
 
   const saveEvent = async () => {
     setLoading(true);
@@ -65,10 +73,10 @@ export default function Calendar() {
         place: state.place,
       };
 
-      // Check for conflicting events
       const hasConflict = events?.some((event) => {
         return (
-          event.day === cardData.day && JSON.stringify(event.time) === JSON.stringify(cardData.time)
+          event.day === cardData.day &&
+          JSON.stringify(event.time) === JSON.stringify(cardData.time)
         );
       });
 
@@ -79,7 +87,9 @@ export default function Calendar() {
       }
 
       // If no conflicting event exists, save the new event
-      const { error: saveError } = await supabase.from("events").insert([cardData]);
+      const { error: saveError } = await supabase
+        .from("events")
+        .insert([cardData]);
 
       if (saveError) {
         console.error("Failed to save event on Events table", saveError);
@@ -87,7 +97,7 @@ export default function Calendar() {
         setLoading(false);
         return;
       }
-      alert('Evento creado.');
+      alert("Evento creado.");
       // Clear error message and reset the form
       setErrorMessage("");
       dispatch({ type: "SET_ACTIVITY", payload: "" });
@@ -107,7 +117,11 @@ export default function Calendar() {
     const getEvents = async () => {
       try {
         const res = await fetch(`${BASE_URL}/api/events`, {
-          method: 'GET',
+          method: "GET",
+          next: {
+            revalidate: 500,
+          },
+          cache: "no-store",
         });
         const eventsData = await res.json();
 
@@ -119,71 +133,75 @@ export default function Calendar() {
     getEvents();
   }, []);
 
-
   return (
     <main className="min-h-screen">
-      <div className="flex container gap-5 h-screen">
-        <section className="sticky basis-1/3 p-3 flex flex-col gap-5  items-center border-r border-secondary/20">
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date as Date)}
-            showIcon
-            inline
-          />
-          {
-            events && (
+      <div className="flex flex-col md:flex-row container gap-5">
+        {isSignedIn && (
+          <section className="sticky basis-1/3 p-3 flex flex-col gap-5  items-center border-r border-secondary/20">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date as Date)}
+              showIcon
+              inline
+            />
+            {events && (
               <TimeRangePicker onChange={onChange} value={value} disableClock />
-            )
-          }
-          <div className="w-[320px] flex flex-col gap-5">
-            <Input
-              type="text"
-              placeholder="Actividad"
-              value={state.activity}
-              onValueChange={(value) =>
-                dispatch({ type: "SET_ACTIVITY", payload: value })
-              }
-            />
-            <Input
-              type="text"
-              placeholder="Lugar"
-              value={state.place}
-              onValueChange={(value) =>
-                dispatch({ type: "SET_PLACE", payload: value })
-              }
-            />
-            <GroupSelector
-              groups={gruposEstudiantiles}
-              setSelectedGroup={setSelectedGroup}
-            />
-          </div>
-          <Button
-            onClick={saveEvent}
-            variant="solid"
-            color="secondary"
-            size="md"
-            isLoading={loading}
-          >
-            Guardar
-          </Button>
-        </section>
+            )}
+            <div className="w-[320px] flex flex-col gap-5">
+              <Input
+                type="text"
+                placeholder="Actividad"
+                value={state.activity}
+                onValueChange={(value) =>
+                  dispatch({ type: "SET_ACTIVITY", payload: value })
+                }
+              />
+              <Input
+                type="text"
+                placeholder="Lugar"
+                value={state.place}
+                onValueChange={(value) =>
+                  dispatch({ type: "SET_PLACE", payload: value })
+                }
+              />
+              <GroupSelector
+                groups={gruposEstudiantiles}
+                setSelectedGroup={setSelectedGroup}
+              />
+            </div>
+            <Button
+              onClick={saveEvent}
+              variant="solid"
+              color="secondary"
+              size="md"
+              isLoading={loading}
+            >
+              Guardar
+            </Button>
+          </section>
+        )}
 
-        <section className="basis-auto px-3 py-1.5 grid grid-cols-3 gap-5">
-          {
-            events && (
-              events.map((event, idx) => (
-                <CardEvent
-                  key={idx}
-                  isLoading={!events}
-                  day={event.day}
-                  time={event.time}
-                  activity={event.activity}
-                  group={event.group}
-                  place={event.place}
-                />
-              ))
-            )
-          }
+        <section className="basis-auto px-3 py-1.5 grid grid-cols-1 md:grid-cols-3 gap-5 md:h-screen">
+          {events ? (
+            events.map((event, idx) => (
+              <CardEvent
+                key={idx}
+                isLoading={!events}
+                day={event.day}
+                time={event.time}
+                activity={event.activity}
+                group={event.group}
+                place={event.place}
+              />
+            ))
+          ) : (
+            <Image
+              src="/not-found.svg"
+              alt="not found"
+              width={24}
+              height={24}
+            />
+          )}
         </section>
       </div>
     </main>

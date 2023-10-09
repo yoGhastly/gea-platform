@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { BASE_URL } from "../constants";
+import Image from "next/image";
 
 interface Group {
   groupImage: string;
@@ -38,23 +39,32 @@ export default function GroupsPage() {
 
   return (
     <div className="min-h-screen flex justify-center items-center">
-      <section className="grid grid-cols-2 gap-10 md:mx-16">
-        {groups?.map((group, idx) => (
-          <Link
-            href={`${BASE_URL}/profile?group=${group.group}`}
-            className="w-[150px] h-[150px] md:w-[300px] md:h-[200px] flex flex-col gap-2 justify-center items-center rounded-2xl bg-gray-500 border-2 border-gray p-3"
-            key={idx}
-          >
-            <img
-              key={idx}
-              src={group.groupImage}
-              alt={group.group}
-              className="w-full h-full object-contain"
-            />
-            <p className="font-semibold">{group.group}</p>
-          </Link>
-        ))}
-      </section>
+      {
+        groups?.length ? (
+          <section className="grid grid-cols-2 gap-10 md:mx-16">
+            {groups?.map((group, idx) => (
+              <Link
+                href={`${BASE_URL}/profile?group=${group.group}`}
+                className="w-[150px] h-[150px] md:w-[300px] md:h-[200px] flex flex-col gap-2 justify-center items-center rounded-2xl bg-gray-500 border-2 border-gray p-3"
+                key={idx}
+              >
+                <img
+                  key={idx}
+                  src={group.groupImage}
+                  alt={group.group}
+                  className="w-full h-full object-contain"
+                />
+                <p className="font-semibold">{group.group}</p>
+              </Link>
+            ))}
+          </section>
+        ) : (
+          <section className="flex flex-col justify-center items-center gap-5">
+            <Image src="/not-found.svg" alt="not found" width={58} height={58} />
+            <p>No hay grupos estudiantiles registrados por el momento.</p>
+          </section>
+        )
+      }
     </div>
   );
 }

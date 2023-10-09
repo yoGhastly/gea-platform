@@ -38,7 +38,7 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
 
   if (!posts) return <CircularProgress color="primary" />
 
-  return (
+  return posts.length > 0 ? (
     <div className="relative w-[370px] h-[350px] md:w-full md:min-h-[700px] md:rounded-2xl overflow-hidden">
       {posts.map((post, index) => (
         <img
@@ -100,5 +100,8 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
         />
       </Link>
     </div>
-  );
+  ) : (
+    <div className="bg-gradient-to-b from-secondary relative w-[370px] h-[350px] md:w-full md:min-h-[700px] md:rounded-2xl overflow-hidden">
+    </div>
+  )
 };

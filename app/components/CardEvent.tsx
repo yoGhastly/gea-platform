@@ -6,12 +6,9 @@ import {
   CardBody,
   CardFooter,
   Divider,
-  Link,
-  Image,
   Button,
   CircularProgress,
 } from "@nextui-org/react";
-import { argv0 } from "process";
 
 interface Props {
   day: string;
@@ -21,10 +18,6 @@ interface Props {
   place: string;
   isLoading: boolean;
 }
-
-const START_TIME = 0;
-const END_TIME = 1;
-const indexToInsertSpace = 5;
 
 export const CardEvent: React.FC<Props> = ({
   day,
@@ -36,26 +29,23 @@ export const CardEvent: React.FC<Props> = ({
 }) => {
   return !isLoading ? (
     <Card
-      className="w-[250px] h-[250px] bg-secondary text-white"
+      className="w-full h-24 md:w-[250px] md:h-[250px] bg-secondary/90 text-white"
       isFooterBlurred
     >
-      <CardHeader className="flex justify-between gap-3">
+      <CardHeader className="flex justify-between gap-3 sm:px-4 sm:py-4">
         <div className="flex">
-          {time.map((t, key) => (
-            <div key={key}>
-              <p>{`${t}`}</p>
-            </div>
-          ))}
+          <p className="text-gray">{time.join(" ")}</p>
         </div>
         <p className="font-bold">{day}</p>
       </CardHeader>
 
       <Divider />
-      <CardBody className="flex items-center mt-10">
-        <p>{activity}</p>
+      <CardBody className="flex flex-row md:flex-col justify-between md:justify-start md:items-center -mt-5 md:mt-10 overflow-hidden">
+        <p className="font-extrabold md:font-normal">{activity}</p>
+        <p className="block md:hidden">{place}</p>
       </CardBody>
       <Divider />
-      <CardFooter className="gap-10 before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
+      <CardFooter className="hidden md:flex gap-10 before:bg-white/10 border-white/20 border-1 md:overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
         <Button
           className="text-tiny text-white bg-black/20"
           variant="flat"

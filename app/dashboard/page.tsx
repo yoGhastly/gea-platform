@@ -13,8 +13,34 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
   const [email, onEmailChange] = useState("");
   const { push } = useRouter();
 
+  useEffect(() => {
+    supabase.auth.onAuthStateChange(async (evt, session) => {
+      const { data, error } = await supabase.from("admin email").select("email").limit(1);
+      if (!session) return;
+      if (!data?.length) return;
+      if (session.user.email !== data[0].email) {
+        push("/");
+      }
+    })
+  }, [push]);
+
   const registerAdmin = async ({ email }: { email: string }) => {
     setLoading(true);
+    const { data, error: adminErrorTable } = await supabase.from("admin email").select("email").limit(1);
+
+    if (adminErrorTable) {
+      console.error(adminErrorTable);
+      return;
+    }
+
+    if (data!.length > 0) {
+      if (data![0].email !== email) {
+        alert("Email no existe como administrador");
+        setLoading(false);
+        return;
+      }
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {

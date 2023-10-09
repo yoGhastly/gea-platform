@@ -103,18 +103,25 @@ export default function Profile() {
   useEffect(() => {
     const getPostsByGroup = async (group: string) => {
       try {
-        const res = await fetch(`${BASE_URL}/api/posts`, {
-          method: "GET",
-        });
-        const { posts }: { posts: Post[] } = await res.json();
-        const groupPosts = posts.filter((post) => post.group === group);
-        setPosts(groupPosts);
+        const { data: posts, error } = await supabase.from("posts").select("*").eq('group', group);
+        const groupPosts = posts?.filter((post: Post) => post.group === group);
+        if (error) {
+          console.error(error);
+          return;
+        }
+        setPosts(groupPosts as Post[] && []);
       } catch (e) {
         console.error(e);
       }
     };
     getPostsByGroup(group as string);
   }, [group]);
+
+  useEffect(() => {
+    if (!posts) {
+      push("/");
+    }
+  }, [posts])
 
   return (
     <main className="min-h-screen">
