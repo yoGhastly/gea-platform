@@ -118,7 +118,7 @@ export default function Profile() {
   }, [group]);
 
   useEffect(() => {
-    if (!posts) {
+    if (profileDetails === null) {
       push("/");
     }
   }, [posts])
