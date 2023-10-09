@@ -137,6 +137,7 @@ export default function CrearPost() {
               color="secondary"
               size="md"
               onClick={savePost}
+              isLoading={loading}
             >
               Guardar Post
             </Button>
