@@ -61,7 +61,7 @@ export default function GroupsPage() {
         ) : (
           <section className="flex flex-col justify-center items-center gap-5">
             <Image src="/not-found.svg" alt="not found" width={58} height={58} />
-            <p>No hay grupos estudiantiles registrados por el momento.</p>
+            <p className="text-center">No hay grupos estudiantiles registrados por el momento.</p>
           </section>
         )
       }
