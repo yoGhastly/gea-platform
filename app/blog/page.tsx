@@ -14,6 +14,7 @@ export default function CrearPost() {
   const [postSaved, setIsPostSaved] = useState(false);
   const [showPostUrl, setShowPostUrl] = useState(false);
   const [postId, setPostId] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function getCurrentDateTime(): string {
     const currentDate = new Date();
@@ -37,6 +38,7 @@ export default function CrearPost() {
       alert(`Todos los campos deben ser llenados`);
       return;
     }
+    setLoading(true);
     try {
       const postId = uuidv4();
       setPostId(postId);
@@ -51,6 +53,8 @@ export default function CrearPost() {
 
       if (error) {
         console.error("Failed to save post image", error);
+        alert("El archivo seleccionado no pudo ser guardado, intenta que el nombre no contenga espacios o caracteres especiales.");
+        setLoading(false);
         return;
       }
 
@@ -70,10 +74,13 @@ export default function CrearPost() {
 
       if (!res.ok) {
         console.warn("Could not save post", res.statusText);
+        alert("No se pudo guardar el post, intenta nuevamente.");
       } else {
+        setLoading(false);
         setIsPostSaved(true);
       }
     } catch (error) {
+      alert("No se pudo guardar el post, intenta nuevamente.");
       console.error("Failed to save post", error);
     }
   };
