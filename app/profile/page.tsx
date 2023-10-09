@@ -170,7 +170,7 @@ export default function Profile() {
                 <h1 className="font-extrabold text-2xl md:text-4xl">
                   {profileDetails?.group ?? ""}
                 </h1>
-                <p className="text-secondary/80 text-md md:text-xl max-w-sm">
+                <p className="text-secondary/80 text-md md:text-xl max-w-md">
                   {profileDetails?.bio ?? ""}
                 </p>
               </div>
