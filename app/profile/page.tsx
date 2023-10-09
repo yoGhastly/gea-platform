@@ -109,7 +109,14 @@ export default function Profile() {
           console.error(error);
           return;
         }
-        setPosts(groupPosts as Post[] ?? []);
+
+        const updatedPostsData = groupPosts?.map((post) => {
+          const { data: imageData } = supabase.storage.from("postImages").getPublicUrl(
+            `images/${post.group}_${post.date}/${post.image}`
+          );
+          return { ...post, image: imageData.publicUrl };
+        });
+        setPosts(updatedPostsData as Post[] ?? []);
       } catch (e) {
         console.error(e);
       }
