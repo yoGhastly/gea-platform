@@ -38,8 +38,8 @@ export default function CrearPost() {
       alert(`Todos los campos deben ser llenados`);
       return;
     }
-    setLoading(true);
     try {
+      setLoading(true);
       const postId = uuidv4();
       setPostId(postId);
       const formattedDate = getCurrentDateTime();
