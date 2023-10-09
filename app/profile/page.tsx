@@ -235,14 +235,16 @@ export default function Profile() {
                         <section className="grid grid-cols-3 md:grid-cols-4 w-full">
                           <div className="relative w-[150px] h-[150px] md:w-[300px] md:h-[300px]">
                             {opt.content?.map((post, idx) => (
-                              <Image
-                                key={idx}
-                                src={post.image}
-                                alt={post.title}
-                                fill
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                className="object-cover"
-                              />
+                              <Link key={idx} href={`/blog/${post.postId}`}>
+                                <Image
+                                  key={idx}
+                                  src={post.image}
+                                  alt={post.title}
+                                  fill
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                  className="object-cover"
+                                />
+                              </Link>
                             ))}
                           </div>
                         </section>
