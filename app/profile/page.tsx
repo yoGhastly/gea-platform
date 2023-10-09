@@ -109,19 +109,13 @@ export default function Profile() {
           console.error(error);
           return;
         }
-        setPosts(groupPosts as Post[] && []);
+        setPosts(groupPosts as Post[] ?? []);
       } catch (e) {
         console.error(e);
       }
     };
     getPostsByGroup(group as string);
   }, [group]);
-
-  useEffect(() => {
-    if (profileDetails === null) {
-      push("/");
-    }
-  }, [posts])
 
   return (
     <main className="min-h-screen">
@@ -130,7 +124,7 @@ export default function Profile() {
           <div className="w-full relative flex items-center gap-5 justify-between">
             <div className="relative w-[100px] h-[100px] md:w-[150px] md:h-[150px] z-20 md:ml-16">
               <Image
-                src={profileImage as string}
+                src={profileImage as string ?? "https://placehold.co/400"}
                 alt={`${searchParams.get("group")}-logo`}
                 fill
                 className="border-2 border-secondary rounded-full object-cover"
@@ -174,10 +168,10 @@ export default function Profile() {
             <div className="flex gap-8 md:gap-0 flex-col md:flex-row item-start md:items-center justify-between">
               <div>
                 <h1 className="font-extrabold text-2xl md:text-4xl">
-                  {profileDetails?.group}
+                  {profileDetails?.group ?? ""}
                 </h1>
                 <p className="text-secondary/80 text-md md:text-2xl">
-                  {profileDetails?.bio}
+                  {profileDetails?.bio ?? ""}
                 </p>
               </div>
               <div className={`${showButtons ? "flex gap-5" : "hidden"}`}>
