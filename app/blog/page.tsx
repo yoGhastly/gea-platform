@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { GroupSelector, ImageUpload } from "../components";
 import { Button, Code, Input, Textarea } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
@@ -34,6 +33,10 @@ export default function CrearPost() {
   }
 
   const savePost = async () => {
+    if (!selectedImage || !selectedGroup || !description || !title) {
+      alert(`Todos los campos deben ser llenados`);
+      return;
+    }
     try {
       const postId = uuidv4();
       setPostId(postId);
