@@ -116,16 +116,13 @@ export default function Calendar() {
   useEffect(() => {
     const getEvents = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/events`, {
-          method: "GET",
-          next: {
-            revalidate: 500,
-          },
-          cache: "no-store",
-        });
-        const eventsData = await res.json();
-
-        setEvents(eventsData.events);
+        const { data, error } = await supabase.from("events").select("*");
+        if(error){
+           console.log(error);
+           return;
+        }
+        if(!data) return;
+        setEvents(data[0].events);
       } catch (e) {
         console.error(e);
       }
