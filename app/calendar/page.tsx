@@ -117,12 +117,11 @@ export default function Calendar() {
     const getEvents = async () => {
       try {
         const { data, error } = await supabase.from("events").select("*");
-        if(error){
-           console.log(error);
-           return;
+        if (error) {
+          console.log(error);
+          return;
         }
-        if(!data) return;
-        setEvents(data[0].events);
+        setEvents(data);
       } catch (e) {
         console.error(e);
       }
@@ -195,8 +194,8 @@ export default function Calendar() {
             <Image
               src="/not-found.svg"
               alt="not found"
-              width={24}
-              height={24}
+              width={52}
+              height={52}
             />
           )}
         </section>
