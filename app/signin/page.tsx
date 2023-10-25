@@ -16,17 +16,17 @@ export default function SignIn() {
     }
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("emailGroups").select("*").single();
+      const { data, error } = await supabase.from("emailGroups").select("*");
 
       if (error) {
         console.error(error);
         return;
       }
 
-      if (data.email === email) {
+      if (data[0].email === email) {
         const { error } = await supabase.auth.signInWithOtp({
           email: email, options: {
-            emailRedirectTo: `${BASE_URL}/profile?=${encodeURIComponent(data.group)}`,
+            emailRedirectTo: `${BASE_URL}/profile?=${encodeURIComponent(data[0].group)}`,
           }
         });
 

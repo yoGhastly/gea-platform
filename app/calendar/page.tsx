@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useReducer, useState } from "react";
+import Image from "next/image";
 import DatePicker from "react-datepicker";
 import TimeRangePicker from "@wojtekmaj/react-timerange-picker";
 
@@ -11,7 +12,7 @@ import { Event } from "../interfaces/";
 import { BASE_URL, gruposEstudiantiles } from "../constants";
 import { Button, CircularProgress, Input } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
-import Image from "next/image";
+import { v4 as uuidv4 } from "uuid";
 
 type State = {
   activity: string;
@@ -51,14 +52,43 @@ export default function Calendar() {
   const [error, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<Event[] | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [token, setToken] = useState('');
+  const [tokenInput, setTokenInput] = useState('');
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_evt, session) => {
       if (session) {
         setIsSignedIn(true);
+        const checkAdmin = async () => {
+          const { data, error } = await supabase
+            .from("admin email")
+            .select("email")
+            .limit(1);
+          if (error) {
+            console.error('Error fetching admin data', error);
+            return;
+          }
+          if (session.user.email === data[0].email) {
+            setIsAdmin(true);
+          }
+        };
+        checkAdmin();
       }
     });
   }, []);
+
+  const generateToken = async () => {
+    const generatedToken = uuidv4().slice(0, 4);
+    setToken(generatedToken);
+    const { error } = await supabase.from("tokens").insert([{
+      token: generatedToken
+    }])
+    if (error) {
+      console.log(error);
+      return;
+    }
+  };
 
   const saveEvent = async () => {
     setLoading(true);
@@ -113,6 +143,26 @@ export default function Calendar() {
     }
   };
 
+  const save = async () => {
+    if (isAdmin) {
+      saveEvent();
+    } else {
+      const token = prompt("Token:");
+      const { data, error } = await supabase.from("tokens").select("token").eq("token", token);
+      if (error) {
+        console.log(error);
+        return;
+      }
+      if (data[0].token === token) {
+        await saveEvent();
+        await supabase.from("tokens").delete().eq("token", token);
+      } else {
+        alert("Token incorrecto");
+        return;
+      }
+    }
+  }
+
   useEffect(() => {
     const getEvents = async () => {
       try {
@@ -128,6 +178,7 @@ export default function Calendar() {
     };
     getEvents();
   }, []);
+
 
   return (
     <main className="min-h-screen">
@@ -165,10 +216,20 @@ export default function Calendar() {
                 setSelectedGroup={setSelectedGroup}
               />
             </div>
+
+            {isAdmin && (
+              <div className="flex flex-col gap-3">
+                <Button onClick={generateToken} variant="ghost" color="secondary" size="md">
+                  Generar Token
+                </Button>
+                {token && <p className="self-center">Token: <span className="font-bold">{token}</span></p>}
+                {error && <p style={{ color: "red" }}>{error}</p>}
+              </div>
+            )}
             <Button
-              onClick={saveEvent}
+              onClick={save}
               variant="solid"
-              color="secondary"
+              color="primary"
               size="md"
               isLoading={loading}
             >
