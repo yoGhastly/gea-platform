@@ -13,6 +13,7 @@ import { BASE_URL, gruposEstudiantiles } from "../constants";
 import { Button, CircularProgress, Input } from "@nextui-org/react";
 import { supabase } from "../lib/supabase";
 import { v4 as uuidv4 } from "uuid";
+import { revalidatePath } from "next/cache";
 
 type State = {
   activity: string;
@@ -53,8 +54,8 @@ export default function Calendar() {
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<Event[] | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [token, setToken] = useState('');
-  const [tokenInput, setTokenInput] = useState('');
+  const [token, setToken] = useState("");
+  const [tokenInput, setTokenInput] = useState("");
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_evt, session) => {
@@ -66,7 +67,7 @@ export default function Calendar() {
             .select("email")
             .limit(1);
           if (error) {
-            console.error('Error fetching admin data', error);
+            console.error("Error fetching admin data", error);
             return;
           }
           if (session.user.email === data[0].email) {
@@ -81,9 +82,11 @@ export default function Calendar() {
   const generateToken = async () => {
     const generatedToken = uuidv4().slice(0, 4);
     setToken(generatedToken);
-    const { error } = await supabase.from("tokens").insert([{
-      token: generatedToken
-    }])
+    const { error } = await supabase.from("tokens").insert([
+      {
+        token: generatedToken,
+      },
+    ]);
     if (error) {
       console.log(error);
       return;
@@ -148,7 +151,10 @@ export default function Calendar() {
       saveEvent();
     } else {
       const token = prompt("Token:");
-      const { data, error } = await supabase.from("tokens").select("token").eq("token", token);
+      const { data, error } = await supabase
+        .from("tokens")
+        .select("token")
+        .eq("token", token);
       if (error) {
         console.log(error);
         return;
@@ -161,24 +167,29 @@ export default function Calendar() {
         return;
       }
     }
-  }
+  };
 
+  // TODO: revalidate event data on fetching
   useEffect(() => {
     const getEvents = async () => {
       try {
-        const { data, error } = await supabase.from("events").select("*");
+        const { data: events, error } = await supabase.from("events").select("*");
+
         if (error) {
-          console.log(error);
+          console.error("Could not fetch events: ", error);
+          setEvents([]);
           return;
         }
-        setEvents(data);
+        if (events) {
+          setEvents(events as Event[]);
+        }
       } catch (e) {
         console.error(e);
       }
     };
     getEvents();
+    revalidatePath("/calendar");
   }, []);
-
 
   return (
     <main className="min-h-screen">
@@ -219,10 +230,19 @@ export default function Calendar() {
 
             {isAdmin && (
               <div className="flex flex-col gap-3">
-                <Button onClick={generateToken} variant="ghost" color="secondary" size="md">
+                <Button
+                  onClick={generateToken}
+                  variant="ghost"
+                  color="secondary"
+                  size="md"
+                >
                   Generar Token
                 </Button>
-                {token && <p className="self-center">Token: <span className="font-bold">{token}</span></p>}
+                {token && (
+                  <p className="self-center">
+                    Token: <span className="font-bold">{token}</span>
+                  </p>
+                )}
                 {error && <p style={{ color: "red" }}>{error}</p>}
               </div>
             )}
