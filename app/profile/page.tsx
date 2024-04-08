@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import { HeaderGradient } from "../components";
 import Image from "next/image";
-import { Button, Divider, Tab, Tabs } from "@nextui-org/react";
+import { Button, Divider, Spinner, Tab, Tabs } from "@nextui-org/react";
 import Link from "next/link";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { Post } from "../interfaces";
@@ -33,6 +33,8 @@ export default function Profile() {
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [showButtons, setShowButtons] = useState(false);
   const isSm = useMediaQuery(480);
+
+  console.log(posts);
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_evt, session) => {
@@ -103,7 +105,10 @@ export default function Profile() {
   useEffect(() => {
     const getPostsByGroup = async (group: string) => {
       try {
-        const { data: posts, error } = await supabase.from("posts").select("*").eq('group', group);
+        const { data: posts, error } = await supabase
+          .from("posts")
+          .select("*")
+          .eq("group", group);
         const groupPosts = posts?.filter((post: Post) => post.group === group);
         if (error) {
           console.error(error);
@@ -111,18 +116,25 @@ export default function Profile() {
         }
 
         const updatedPostsData = groupPosts?.map((post) => {
-          const { data: imageData } = supabase.storage.from("postImages").getPublicUrl(
-            `images/${post.group}_${post.date}/${post.image}`
-          );
+          const { data: imageData } = supabase.storage
+            .from("postImages")
+            .getPublicUrl(`images/${post.group}_${post.date}/${post.image}`);
           return { ...post, image: imageData.publicUrl };
         });
-        setPosts(updatedPostsData as Post[] ?? []);
+        setPosts(updatedPostsData as Post[]);
       } catch (e) {
         console.error(e);
       }
     };
     getPostsByGroup(group as string);
   }, [group]);
+
+  if (!profileDetails)
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Spinner color="primary" />
+      </div>
+    );
 
   return (
     <main className="min-h-screen">
@@ -131,7 +143,7 @@ export default function Profile() {
           <div className="w-full relative flex items-center gap-5 justify-between">
             <div className="relative w-[100px] h-[100px] md:w-[150px] md:h-[150px] z-20 md:ml-16">
               <Image
-                src={profileImage as string ?? "https://placehold.co/400"}
+                src={(profileImage as string) ?? "https://placehold.co/400"}
                 alt={`${searchParams.get("group")}-logo`}
                 fill
                 className="border-2 border-secondary rounded-full object-cover"
@@ -187,7 +199,7 @@ export default function Profile() {
                   color="secondary"
                   as="a"
                   href={`/create-profile?email=${encodeURIComponent(
-                    emailGroup
+                    emailGroup,
                   )}&edit=true`}
                 >
                   Editar Perfil
@@ -212,47 +224,41 @@ export default function Profile() {
               selectedKey={tabSelected}
               onSelectionChange={setTabSelected as any}
             >
-              {[
-                { label: "Posts", icon: "/grid.svg", content: posts },
-              ].map((opt) => (
-                <Tab
-                  key={opt.label}
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <Image
-                        src={opt.icon}
-                        alt={opt.label}
-                        width={24}
-                        height={24}
-                      />
-                      <span>{opt.label}</span>
-                    </div>
-                  }
-                >
-                  <section className="grid grid-cols-3 md:grid-cols-4 w-full">
-                    <div className="relative w-[150px] h-[150px] md:w-[300px] md:h-[300px]">
-                      {tabSelected === 'Posts' && opt.label === 'Posts' && (
-                        <section className="grid grid-cols-3 md:grid-cols-4 w-full">
-                          <div className="relative w-[150px] h-[150px] md:w-[300px] md:h-[300px]">
-                            {opt.content?.map((post, idx) => (
-                              <Link key={idx} href={`/blog/${post.postId}`}>
-                                <Image
-                                  key={idx}
-                                  src={post.image}
-                                  alt={post.title}
-                                  fill
-                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                  className="object-cover"
-                                />
-                              </Link>
-                            ))}
-                          </div>
-                        </section>
-                      )}
-                    </div>
-                  </section>
-                </Tab>
-              ))}
+              {[{ label: "Posts", icon: "/grid.svg", content: posts }].map(
+                (opt) => (
+                  <Tab
+                    key={opt.label}
+                    title={
+                      <div className="flex items-center space-x-2">
+                        <Image
+                          src={opt.icon}
+                          alt={opt.label}
+                          width={24}
+                          height={24}
+                        />
+                        <span>{opt.label}</span>
+                      </div>
+                    }
+                  >
+                    <section className="grid grid-cols-2 md:grid-cols-4 w-full gap-3">
+                      {posts?.map((post) => (
+                        <Link
+                          href={`${BASE_URL}/blog/${post.postId}`}
+                          key={`${post.postId}`}
+                          className="relative w-[150px] h-[150px] md:w-[300px] md:h-[300px] cursor-pointer"
+                        >
+                          <Image
+                            src={post.image}
+                            fill
+                            className="object-cover"
+                            alt={post.title}
+                          />
+                        </Link>
+                      ))}
+                    </section>
+                  </Tab>
+                ),
+              )}
             </Tabs>
           </section>
         </HeaderGradient>

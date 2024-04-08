@@ -1,1 +1,1 @@
-export const BASE_URL = 'https://gea-platform.vercel.app'
+export const BASE_URL = "http://localhost:3000";

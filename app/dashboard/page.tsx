@@ -15,52 +15,69 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
 
   useEffect(() => {
     supabase.auth.onAuthStateChange(async (evt, session) => {
-      const { data, error } = await supabase.from("admin email").select("email").limit(1);
+      const { data, error } = await supabase
+        .from("admin email")
+        .select("email")
+        .limit(1);
       if (!session) return;
       if (!data?.length) return;
       if (session.user.email !== data[0].email) {
         push("/");
       }
-    })
+    });
   }, [push]);
 
   const registerAdmin = async ({ email }: { email: string }) => {
-    setLoading(true);
-    const { data, error: adminErrorTable } = await supabase.from("admin email").select("email").limit(1);
+    try {
+      setLoading(true);
 
-    if (adminErrorTable) {
-      console.error(adminErrorTable);
-      return;
-    }
+      // Check if email exists in admin email table
+      const { data: adminData, error: adminError } = await supabase
+        .from("admin email")
+        .select("email")
+        .eq("email", email)
+        .single();
 
-    if (data!.length > 0) {
-      if (data![0].email !== email) {
-        alert("Email no existe como administrador");
+      if (adminError) {
+        console.error("Error fetching admin email:", adminError.message);
         setLoading(false);
         return;
       }
-    }
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email,
-      options: {
-        emailRedirectTo: `${BASE_URL}/dashboard?logged=true`,
-      },
-    });
+      if (!adminData) {
+        // Email doesn't exist as an admin, alert the user and return
+        alert("Email does not exist as an administrator.");
+        setLoading(false);
+        return;
+      }
 
-    const { error: errorDbInsert } = await supabase.from("admin email").insert([
-      {
-        email: email,
-      },
-    ]);
+      // Sign in user with OTP
+      const { error: signInError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${BASE_URL}/dashboard?logged=true`,
+        },
+      });
 
-    push(`/verify?email=${encodeURIComponent(email)}`);
-    setLoading(false);
+      if (signInError) {
+        throw new Error("Error signing in with OTP: " + signInError.message);
+      }
 
-    if (error && errorDbInsert) {
-      console.log("error register admin", error);
-      console.log("error register admin on db", errorDbInsert);
-      return;
+      // Insert admin email into the database
+      const { error: insertError } = await supabase
+        .from("admin_email")
+        .insert([{ email }]);
+
+      if (insertError) {
+        throw new Error("Error inserting admin email: " + insertError.message);
+      }
+
+      // Redirect to verification page
+      push(`/verify?email=${encodeURIComponent(email)}`);
+    } catch (error: any) {
+      console.error("Error registering admin:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -71,7 +88,7 @@ function RenderSignIn({ errorMessage }: { errorMessage: string }) {
           style={{ background: `url(/doodles.svg)` }}
         ></div>
         <div className="max-w-md mt-10 md:mt-0 basis-1/5 flex flex-col gap-10 justify-center items-center m-auto">
-          <h1 className="font-bold text-5xl">Sign In</h1>
+          <h1 className="font-bold text-5xl">Admin</h1>
           <EmailInput
             value={email}
             setState={onEmailChange}
@@ -96,7 +113,7 @@ export default function Dashboard() {
   const [showInviteLink, setShowInviteLink] = useState<boolean>(false);
   const [disableButton, setDisableButton] = useState<boolean>(false);
   const [errorMessage, _setErrorMessage] = useState(
-    "Please enter a valid email"
+    "Please enter a valid email",
   );
   const isSm = useMediaQuery(480);
 
@@ -164,7 +181,9 @@ export default function Dashboard() {
             </p>
           </button>
           <div
-            className={`${showInput ? "flex flex-col gap-5 w-[300px] md:max-w-2xl" : "hidden"
+            className={`${showInput
+                ? "flex flex-col gap-5 w-[300px] md:max-w-2xl"
+                : "hidden"
               }`}
           >
             <div className="flex flex-col md:flex-row gap-5 w-full">
@@ -194,9 +213,8 @@ export default function Dashboard() {
               size={`${isSm ? "sm" : "md"}`}
               showAnchorIcon
               isExternal
-              href=
-              {`${BASE_URL}/create-profile?email=${encodeURIComponent(
-                groupEmailToAdd
+              href={`${BASE_URL}/create-profile?email=${encodeURIComponent(
+                groupEmailToAdd,
               )}`}
             >
               {`${BASE_URL}/create-profile?email=${encodeURIComponent(groupEmailToAdd)}`}

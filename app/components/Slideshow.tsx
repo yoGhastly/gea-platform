@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { Chip, CircularProgress } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,7 +20,7 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
 
   const prevSlide = () => {
     setCurrentSlide((prevSlide) =>
-      prevSlide === 0 ? posts.length - 1 : prevSlide - 1
+      prevSlide === 0 ? posts.length - 1 : prevSlide - 1,
     );
   };
 
@@ -36,7 +36,7 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
     };
   }, [currentSlide, posts]);
 
-  if (!posts) return <CircularProgress color="primary" />
+  if (!posts) return <CircularProgress color="primary" />;
 
   return posts.length > 0 ? (
     <div className="relative w-[370px] h-[350px] md:w-full md:min-h-[700px] md:rounded-2xl overflow-hidden">
@@ -46,23 +46,22 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
           src={post.image}
           alt={`Slideshow Image ${index + 1}`}
           className={`w-full h-full object-cover absolute top-0 left-0 transition-opacity duration-500 ${index === currentSlide
-            ? "opacity-100 bg-gradient-to-b from-black"
-            : "opacity-0"
+              ? "opacity-100 bg-gradient-to-b from-black"
+              : "opacity-0"
             }`}
         />
       ))}
       <div className="absolute inset-0 bg-black opacity-40 md:rounded-lg"></div>
       <div className="absolute inset-0 flex flex-col items-start justify-between md:ml-24">
         <Chip
-          variant="flat"
+          variant="solid"
           size="lg"
           color="primary"
           className="basis-10 my-5 mx-5 md:my-20 md:mx-0"
         >
-          {posts[currentSlide].date.match(/(\d{2}_\d{2}_\d{4})/)![0].replace(
-            /_/g,
-            " "
-          )}
+          {posts[currentSlide].date
+            .match(/(\d{2}_\d{2}_\d{4})/)![0]
+            .replace(/_/g, " ")}
         </Chip>
 
         <div className="flex gap-2 md:gap-10 flex-col md:basis-3/5 text-white">
@@ -81,8 +80,8 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`h-3 w-3 md:h-4 md:w-4 rounded-full mx-1 md:mx-2 focus:outline-none self-center transition-opacity duration-300 ${index === currentSlide
-                ? "bg-white opacity-100"
-                : "bg-gray opacity-60"
+                  ? "bg-white opacity-100"
+                  : "bg-gray opacity-60"
                 }`}
             ></button>
           ))}
@@ -101,7 +100,6 @@ export const Slideshow: React.FC<SlideshowProps> = ({ posts }) => {
       </Link>
     </div>
   ) : (
-    <div className="bg-gradient-to-b from-secondary relative w-[370px] h-[350px] md:w-full md:min-h-[700px] md:rounded-2xl overflow-hidden">
-    </div>
-  )
+    <div className="bg-gradient-to-b from-secondary relative w-[370px] h-[350px] md:w-full md:min-h-[700px] md:rounded-2xl overflow-hidden"></div>
+  );
 };
